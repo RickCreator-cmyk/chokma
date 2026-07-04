@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.H.O.K.M.A. — UNIFIED SYSTEM</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--gold:#ffcc00;--gdim:rgba(255,204,0,.35);--orange:#ff9900;--odim:rgba(255,153,0,.3);--green:#90ee40;--ndim:rgba(144,238,64,.3);--red:#ff4444;--bg:#070500;--border:rgba(255,180,0,.14);--text:#f0dea0;--tdim:rgba(240,222,160,.45)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;flex:1}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(255,153,0,.05),transparent 65%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,180,0,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,180,0,.022) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+
+/* ══════════ MASTER NAV ══════════ */
+.mastnav{position:relative;z-index:200;display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:0 20px;height:52px;background:rgba(5,3,0,.99);border-bottom:2px solid rgba(255,180,0,.2);flex-shrink:0}
+.mastnav-brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.95rem;letter-spacing:.35em;color:var(--gold);text-shadow:0 0 20px rgba(255,204,0,.6);white-space:nowrap}
+.mastnav-brand em{font-style:normal;font-size:.48rem;color:var(--orange);letter-spacing:.18em;margin-left:10px;font-family:'Share Tech Mono',monospace}
+.masttabs{display:flex;justify-content:center;gap:4px;padding:0 20px}
+.mtab{font-family:'Orbitron',sans-serif;font-size:.48rem;letter-spacing:.2em;padding:8px 18px;cursor:pointer;color:var(--tdim);border-bottom:2px solid transparent;transition:all .25s;display:flex;align-items:center;gap:7px;white-space:nowrap;border-radius:2px 2px 0 0}
+.mtab:hover{color:var(--orange);background:rgba(255,153,0,.05)}
+.mtab.on{color:var(--gold);border-bottom-color:var(--gold);background:rgba(255,204,0,.06)}
+.mtab-ic{font-size:.9rem}
+.mastnav-right{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.ns{font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:.12em;padding:3px 10px;border:1px solid var(--border);color:var(--tdim);white-space:nowrap}
+.ns.on{border-color:var(--ndim);color:var(--green)}
+#masterClock{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--gold);letter-spacing:.12em}
+
+/* API BAR */
+.apibar{position:relative;z-index:150;display:flex;align-items:center;gap:10px;padding:7px 20px;background:rgba(255,80,0,.06);border-bottom:1px solid rgba(255,153,0,.2);flex-shrink:0}
+.apibar label{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--orange);letter-spacing:.14em;white-space:nowrap}
+.apibar input{flex:1;max-width:440px;background:rgba(255,153,0,.04);border:1px solid rgba(255,153,0,.22);padding:6px 12px;color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:.7rem;outline:none}
+.apibar input:focus{border-color:var(--orange)}
+.apibar input::placeholder{color:rgba(255,153,0,.18)}
+.apibar button{background:rgba(255,153,0,.1);border:1px solid var(--orange);color:var(--orange);font-family:'Orbitron',sans-serif;font-size:.48rem;letter-spacing:.2em;padding:6px 16px;cursor:pointer;transition:all .2s}
+.apibar button:hover{background:rgba(255,153,0,.25)}
+#apiStatus{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--red);letter-spacing:.1em;margin-left:auto}
+#apiStatus.ok{color:var(--green)}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative;z-index:10;display:flex;flex-direction:column;min-height:0;height:100%}
+.page{display:none;flex:1;overflow:hidden;flex-direction:column;min-height:0;width:100%}
+.page.on{display:flex}
+
+/* ══════════════════════════════════
+   PAGE 1 — AI CHAT
+══════════════════════════════════ */
+.chat-layout{display:flex;flex:1;overflow:hidden;height:100%;min-height:0}
+.chat-sidebar{width:220px;flex-shrink:0;background:rgba(9,7,0,.96);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.sb-sec{padding:13px 14px;border-bottom:1px solid rgba(255,180,0,.07)}
+.sb-ttl{font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.28em;color:var(--orange);margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.sb-ttl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,153,0,.3),transparent)}
+.sblk{margin-bottom:9px}
+.slbl{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.54rem;letter-spacing:.07em;color:var(--tdim);margin-bottom:4px}
+.slbl span{color:var(--orange)} .slbl span.g{color:var(--gold)} .slbl span.n{color:var(--green)}
+.bar{height:2px;background:rgba(255,180,0,.07);border-radius:1px;overflow:hidden}
+.bf{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--odim),var(--orange));box-shadow:0 0 5px var(--orange);transition:width 1.2s}
+.bf.g{background:linear-gradient(90deg,var(--gdim),var(--gold));box-shadow:0 0 5px var(--gold)}
+.bf.n{background:linear-gradient(90deg,var(--ndim),var(--green));box-shadow:0 0 5px var(--green)}
+.irow{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.54rem;letter-spacing:.05em;color:var(--tdim);padding:4px 0;border-bottom:1px solid rgba(255,180,0,.05)}
+.irow:last-child{border-bottom:none}
+.iv{color:var(--gold)} .ivo{color:var(--orange)} .ivn{color:var(--green)} .ivr{color:var(--red)}
+.alertbox{background:rgba(255,68,68,.05);border:1px solid rgba(255,68,68,.18);border-left:2px solid var(--red);padding:7px 10px;font-family:'Share Tech Mono',monospace;font-size:.52rem;color:#ff9999;letter-spacing:.07em;line-height:1.6}
+
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-hdr{padding:9px 18px;border-bottom:1px solid var(--border);background:rgba(10,7,0,.7);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-ttl{font-family:'Orbitron',sans-serif;font-size:.52rem;letter-spacing:.24em;color:var(--gold)}
+.ctags{display:flex;gap:7px}
+.ctag{font-family:'Share Tech Mono',monospace;font-size:.44rem;letter-spacing:.11em;padding:2px 8px;border:1px solid var(--border);color:var(--tdim)}
+.ctag.on{border-color:var(--ndim);color:var(--green)}
+.messages{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:18px}
+.messages::-webkit-scrollbar{width:3px}.messages::-webkit-scrollbar-thumb{background:rgba(255,153,0,.28);border-radius:2px}
+.msg{display:flex;gap:12px;animation:fadeup .3s ease}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:.4rem;font-weight:700;flex-shrink:0;line-height:1.3;text-align:center}
+.av-ai{background:radial-gradient(circle,rgba(255,153,0,.22),rgba(28,16,0,.97));border:1px solid var(--orange);color:var(--orange);box-shadow:0 0 10px rgba(255,153,0,.18)}
+.av-u{background:radial-gradient(circle,rgba(144,238,64,.18),rgba(4,18,0,.97));border:1px solid var(--green);color:var(--green);box-shadow:0 0 10px rgba(144,238,64,.14)}
+.mbody{display:flex;flex-direction:column;gap:4px;max-width:74%}
+.msg.user .mbody{align-items:flex-end}
+.mmeta{font-family:'Share Tech Mono',monospace;font-size:.43rem;letter-spacing:.16em;color:var(--tdim)}
+.mmeta.ai{color:rgba(255,153,0,.48)}.mmeta.um{color:rgba(144,238,64,.48)}
+.bubble{padding:11px 15px;font-size:.78rem;line-height:1.7;border-radius:1px}
+.bai{background:rgba(20,13,0,.92);border:1px solid rgba(255,153,0,.16);border-left:3px solid var(--orange);color:#f5e8c5;box-shadow:0 3px 18px rgba(0,0,0,.4)}
+.bu{background:rgba(4,16,0,.92);border:1px solid rgba(144,238,64,.16);border-right:3px solid var(--green);color:#d5f0a0;box-shadow:0 3px 18px rgba(0,0,0,.4)}
+.trow{display:flex;gap:4px;align-items:center;padding:3px 0}
+.td{width:5px;height:5px;border-radius:50%;background:var(--orange);box-shadow:0 0 5px var(--orange);animation:tdp 1.2s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes tdp{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+.input-zone{border-top:1px solid var(--border);background:rgba(7,5,0,.98);padding:12px 22px 14px;flex-shrink:0}
+.input-row{display:flex;gap:10px;align-items:center}
+.ipfx{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--gold);letter-spacing:.12em;white-space:nowrap}
+.txtin{flex:1;background:rgba(255,180,0,.03);border:1px solid var(--border);padding:10px 15px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;outline:none;caret-color:var(--gold);transition:border-color .2s}
+.txtin:focus{border-color:var(--gdim)}
+.txtin::placeholder{color:rgba(240,222,160,.16)}
+.sndbtn{background:rgba(255,204,0,.09);border:1px solid var(--gdim);color:var(--gold);font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.22em;padding:10px 18px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.sndbtn:hover:not(:disabled){background:rgba(255,204,0,.2);box-shadow:0 0 14px rgba(255,204,0,.16)}
+.sndbtn:disabled{opacity:.3;cursor:not-allowed}
+.micbtn{background:rgba(255,153,0,.08);border:1px solid var(--border);color:var(--orange);font-size:.95rem;padding:9px 13px;cursor:pointer;transition:all .2s;flex-shrink:0;line-height:1}
+.micbtn:hover{border-color:var(--orange);background:rgba(255,153,0,.18)}
+.micbtn.listening{background:rgba(255,68,68,.18);border-color:var(--red);animation:micPulse 1s ease-in-out infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 8px rgba(255,68,68,.3)}50%{box-shadow:0 0 18px rgba(255,68,68,.6)}}
+.micbtn.speak-toggle.active{background:rgba(144,238,64,.15);border-color:var(--green);color:var(--green)}
+.voice-status-row{display:flex;align-items:center;gap:8px;padding:6px 4px 0;font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:.12em;color:var(--red)}
+.voice-pulse{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:micPulse2 .8s ease-in-out infinite}
+@keyframes micPulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+/* ══════════════════════════════════
+   PAGE 2 — HUD
+══════════════════════════════════ */
+.hud-page{flex:1;position:relative;overflow:hidden;cursor:crosshair;height:100%;width:100%}
+.hud-page::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,.72)100%);pointer-events:none;z-index:100}
+.scanline{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--odim),var(--orange),var(--odim),transparent);box-shadow:0 0 18px var(--orange);animation:scan 7s linear infinite;z-index:98;pointer-events:none}
+@keyframes scan{0%{top:-2px}100%{top:100%}}
+.hud-topbar{position:absolute;top:0;left:0;right:0;z-index:50;height:46px;display:grid;grid-template-columns:240px 1fr 240px;align-items:center;padding:0 16px;background:linear-gradient(180deg,rgba(7,5,0,.97),transparent);border-bottom:1px solid var(--border)}
+.htb-brand{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.82rem;letter-spacing:.38em;color:var(--gold);text-shadow:0 0 18px rgba(255,204,0,.6)}
+.htb-brand span{font-size:.44rem;color:var(--orange);letter-spacing:.18em;display:block}
+.htb-center{display:flex;justify-content:center;gap:22px}
+.htb-stat{display:flex;flex-direction:column;align-items:center;font-size:.44rem;letter-spacing:.15em;color:rgba(255,153,0,.5)}
+.htb-stat strong{font-size:.62rem;color:var(--orange);font-weight:400}
+.htb-right{display:flex;justify-content:flex-end;align-items:center;gap:7px}
+.hpill{font-size:.44rem;letter-spacing:.1em;padding:3px 8px;border:1px solid var(--border);color:rgba(255,180,0,.4)}
+.hpill.warn{border-color:rgba(255,68,68,.4);color:var(--red);animation:wb 2s ease-in-out infinite}
+.hpill.ok{border-color:rgba(144,238,64,.3);color:var(--green)}
+@keyframes wb{0%,100%{opacity:1}50%{opacity:.3}}
+#hudClock{font-size:.65rem;color:var(--gold);letter-spacing:.1em}
+.hud-botbar{position:absolute;bottom:0;left:0;right:0;z-index:50;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:linear-gradient(0deg,rgba(7,5,0,.97),transparent);border-top:1px solid var(--border);font-size:.44rem;letter-spacing:.15em;color:rgba(255,153,0,.28)}
+/* HUD panels */
+.hpanel{position:absolute;background:rgba(14,10,0,.82);border:1px solid var(--border);backdrop-filter:blur(6px)}
+.hpanel::before{content:'';position:absolute;top:-1px;left:-1px;width:9px;height:9px;border-top:1px solid var(--orange);border-left:1px solid var(--orange)}
+.hpanel::after{content:'';position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-bottom:1px solid var(--orange);border-right:1px solid var(--orange)}
+.hphdr{font-family:'Orbitron',sans-serif;font-size:.43rem;letter-spacing:.26em;color:var(--orange);padding:9px 12px 7px;border-bottom:1px solid rgba(255,153,0,.1)}
+.hpbody{padding:9px 12px}
+.hp-tl{top:56px;left:12px;width:230px}
+.hp-tr{top:56px;right:12px;width:255px}
+.hp-bl{bottom:44px;left:12px;width:230px}
+.hp-br{bottom:44px;right:12px;width:255px}
+.hsr{display:flex;justify-content:space-between;font-size:.55rem;padding:3px 0;border-bottom:1px solid rgba(255,180,0,.05);letter-spacing:.05em;color:rgba(240,222,160,.6)}
+.hsr:last-child{border-bottom:none}
+.hsv{color:var(--orange)}.hsvg{color:var(--gold)}.hsvn{color:var(--green);text-shadow:0 0 6px var(--green)}.hsvr{color:var(--red);text-shadow:0 0 6px var(--red)}
+.hbrow{margin:4px 0}
+.hblbl{display:flex;justify-content:space-between;font-size:.48rem;color:rgba(255,153,0,.4);margin-bottom:3px}
+.hbtrack{height:2px;background:rgba(255,153,0,.07);border-radius:1px;overflow:hidden}
+.hbfill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--odim),var(--orange));box-shadow:0 0 4px var(--orange)}
+.hbfill.g{background:linear-gradient(90deg,var(--gdim),var(--gold));box-shadow:0 0 4px var(--gold)}
+.hbfill.n{background:linear-gradient(90deg,var(--ndim),var(--green));box-shadow:0 0 4px var(--green)}
+/* Arc reactor */
+.arc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;pointer-events:none;z-index:5}
+.ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid}
+.r1{width:52px;height:52px;border-color:var(--orange);box-shadow:0 0 16px var(--orange),inset 0 0 16px rgba(255,153,0,.15);background:radial-gradient(circle,rgba(255,153,0,.22),transparent);animation:rs1 3.5s linear infinite}
+.r2{width:90px;height:90px;border-color:rgba(255,153,0,.42);border-style:dashed;animation:rs1 7s linear infinite}
+.r3{width:138px;height:138px;border-color:rgba(255,153,0,.22);animation:rs2 12s linear infinite}
+.r4{width:186px;height:186px;border-color:rgba(255,153,0,.1);border-style:dotted;animation:rs1 20s linear infinite}
+.r5{width:248px;height:248px;border-color:rgba(255,153,0,.05);animation:rs2 28s linear infinite}
+@keyframes rs1{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes rs2{to{transform:translate(-50%,-50%) rotate(-360deg)}}
+.arc-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;background:radial-gradient(circle,#fff 0%,var(--orange) 40%,rgba(255,153,0,.15) 70%,transparent 100%);border-radius:50%;box-shadow:0 0 26px var(--orange),0 0 50px rgba(255,153,0,.35);animation:acp 2s ease-in-out infinite}
+@keyframes acp{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.35)}}
+/* HUD verse */
+.vdate{font-family:'Orbitron',sans-serif;font-size:.43rem;letter-spacing:.18em;color:rgba(255,153,0,.5);margin-bottom:7px}
+.vtext{font-size:.6rem;line-height:1.65;color:#ffe0a0;font-style:italic;padding:7px 0;border-top:1px solid rgba(255,153,0,.1);border-bottom:1px solid rgba(255,153,0,.1);margin-bottom:7px;min-height:68px}
+.vref{font-family:'Orbitron',sans-serif;font-size:.48rem;letter-spacing:.16em;color:var(--orange);text-align:right}
+.fquote{font-size:.54rem;line-height:1.6;color:#ffaaaa;font-style:italic;padding:6px 0 6px 8px;border-left:2px solid rgba(255,68,68,.32);margin:5px 0 7px}
+.fref{font-size:.48rem;color:rgba(255,100,100,.55);letter-spacing:.1em;margin-bottom:7px}
+.victory{font-size:.48rem;color:rgba(144,238,64,.78);text-align:center;padding:5px 7px;border:1px solid rgba(144,238,64,.18);background:rgba(144,238,64,.04);margin-top:7px;line-height:1.7}
+.waveform{display:flex;align-items:center;gap:2px;height:26px;margin:5px 0}
+.wbar{flex:1;background:var(--orange);border-radius:1px;box-shadow:0 0 3px var(--orange);min-height:2px}
+.logwrap{height:58px;overflow:hidden;position:relative}
+.logwrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:18px;background:linear-gradient(transparent,rgba(14,10,0,.9));pointer-events:none}
+.loginner{animation:scrolllog 18s linear infinite}
+.logline{font-size:.48rem;padding:2px 0;color:rgba(255,153,0,.42);white-space:nowrap;letter-spacing:.05em}
+.logline span{color:var(--orange)}
+@keyframes scrolllog{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+/* HUD CMD */
+.cmdwrap{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);width:400px;z-index:60}
+.cmdout{position:absolute;bottom:100%;left:0;right:0;background:rgba(10,7,0,.97);border:1px solid var(--border);border-bottom:none;max-height:130px;overflow-y:auto;display:none;padding:7px 13px}
+.cmdout::-webkit-scrollbar{width:2px}.cmdout::-webkit-scrollbar-thumb{background:var(--odim)}
+.col{font-size:.56rem;letter-spacing:.05em;padding:2px 0;color:rgba(255,153,0,.58)}
+.col.r{color:var(--orange)}
+.cmdinput-row{display:flex;align-items:center;gap:8px;background:rgba(14,10,0,.96);border:1px solid var(--border);padding:7px 13px}
+.cmdpfx{color:var(--gold);font-size:.65rem;letter-spacing:.1em;text-shadow:0 0 8px var(--gold);white-space:nowrap}
+.cmdinput{flex:1;background:transparent;border:none;color:var(--orange);font-family:'Share Tech Mono',monospace;font-size:.65rem;outline:none;caret-color:var(--orange);letter-spacing:.04em}
+.cmdinput::placeholder{color:rgba(255,153,0,.18)}
+
+/* ══════════════════════════════════
+   PAGE 3 — BRAINSTORM
+══════════════════════════════════ */
+.bs-layout{display:flex;flex:1;overflow:hidden;height:100%;width:100%;min-height:0}
+.bs-lsb{width:195px;flex-shrink:0;background:rgba(9,7,0,.96);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;min-height:0}
+.bs-lsb::-webkit-scrollbar{width:2px}.bs-lsb::-webkit-scrollbar-thumb{background:var(--odim)}
+.lsec{padding:12px 13px;border-bottom:1px solid rgba(255,180,0,.07)}
+.lttl{font-family:'Orbitron',sans-serif;font-size:.43rem;letter-spacing:.26em;color:var(--orange);margin-bottom:9px;display:flex;align-items:center;gap:5px}
+.lttl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,153,0,.3),transparent)}
+.mbtn{width:100%;text-align:left;background:transparent;border:1px solid rgba(255,180,0,.1);color:var(--tdim);font-family:'Share Tech Mono',monospace;font-size:.56rem;letter-spacing:.05em;padding:7px 9px;margin-bottom:4px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
+.mbtn:hover,.mbtn.on{border-color:var(--gdim);color:var(--gold);background:rgba(255,204,0,.05);border-left:2px solid var(--gold)}
+.tbtn{width:100%;text-align:left;background:rgba(14,10,0,.5);border:1px solid rgba(255,180,0,.08);color:var(--tdim);font-family:'Share Tech Mono',monospace;font-size:.53rem;letter-spacing:.04em;padding:6px 9px;margin-bottom:4px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.tbtn:hover{border-color:var(--odim);color:var(--orange);background:rgba(255,153,0,.05)}
+.tbtn .tb{font-size:.4rem;color:var(--orange);opacity:.6}
+/* BS sub-tabs */
+.bstabbar{display:flex;border-bottom:1px solid var(--border);background:rgba(8,6,0,.95);flex-shrink:0}
+.bstab{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.2em;padding:9px 18px;cursor:pointer;color:var(--tdim);border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.bstab:hover{color:var(--orange)}
+.bstab.on{color:var(--gold);border-bottom-color:var(--gold);background:rgba(255,204,0,.04)}
+.bs-pages{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;min-width:0}
+.bs-page{display:none;flex:1;overflow:hidden;flex-direction:column;min-height:0;min-width:0}
+.bs-page.on{display:flex}
+/* Chat sub-page */
+.bs-chat-wrap{flex:1;display:flex;overflow:hidden}
+.bs-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ws-bar{padding:9px 17px;border-bottom:1px solid var(--border);background:rgba(10,7,0,.7);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ws-ttl{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:.23em;color:var(--gold)}
+.ws-mode{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--orange);letter-spacing:.13em}
+.bsmessages{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:17px}
+.bsmessages::-webkit-scrollbar{width:3px}.bsmessages::-webkit-scrollbar-thumb{background:rgba(255,153,0,.26);border-radius:2px}
+.qprow{padding:7px 22px 0;display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.qp{font-family:'Share Tech Mono',monospace;font-size:.46rem;letter-spacing:.07em;padding:4px 10px;border:1px solid rgba(255,153,0,.16);color:var(--orange);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+.qp:hover{background:rgba(255,153,0,.1);border-color:var(--orange)}
+/* notes rsb */
+.bs-rsb{width:195px;flex-shrink:0;border-left:1px solid var(--border);background:rgba(9,7,0,.96);display:flex;flex-direction:column;overflow:hidden}
+.rsb-hdr{padding:12px 13px 9px;border-bottom:1px solid rgba(255,180,0,.07);font-family:'Orbitron',sans-serif;font-size:.43rem;letter-spacing:.26em;color:var(--orange)}
+.notes{flex:1;overflow-y:auto;padding:9px 11px;display:flex;flex-direction:column;gap:7px}
+.notes::-webkit-scrollbar{width:2px}.notes::-webkit-scrollbar-thumb{background:var(--odim)}
+.note{background:rgba(18,13,0,.8);border:1px solid rgba(255,180,0,.1);border-left:2px solid var(--gold);padding:7px 9px;animation:fadeup .3s ease}
+.note-ttl{font-family:'Orbitron',sans-serif;font-size:.43rem;letter-spacing:.13em;color:var(--gold);margin-bottom:3px}
+.note-body{font-size:.56rem;line-height:1.5;color:var(--tdim)}
+.no-notes{font-size:.56rem;color:rgba(255,180,0,.17);text-align:center;margin-top:22px;font-family:'Share Tech Mono',monospace;letter-spacing:.1em;line-height:2.1;padding:0 8px}
+.rsb-foot{padding:9px 11px;border-top:1px solid rgba(255,180,0,.07)}
+.save-btn{width:100%;background:rgba(144,238,64,.06);border:1px solid rgba(144,238,64,.22);color:var(--green);font-family:'Orbitron',sans-serif;font-size:.42rem;letter-spacing:.18em;padding:7px;cursor:pointer;transition:all .2s}
+.save-btn:hover{background:rgba(144,238,64,.16)}
+/* 3D sub-page */
+.model-layout{flex:1;display:flex;overflow:hidden}
+.vp-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.vp-hdr{padding:9px 16px;border-bottom:1px solid var(--border);background:rgba(10,7,0,.8);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.vp-ttl{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:.23em;color:var(--gold)}
+.vp-ctrl{display:flex;gap:7px}
+.vpbtn{font-family:'Share Tech Mono',monospace;font-size:.46rem;letter-spacing:.1em;padding:4px 11px;border:1px solid var(--border);color:var(--tdim);background:transparent;cursor:pointer;transition:all .2s}
+.vpbtn:hover,.vpbtn.on{border-color:var(--orange);color:var(--orange);background:rgba(255,153,0,.07)}
+#canvas3d{width:100%;flex:1;display:block;cursor:grab}
+#canvas3d:active{cursor:grabbing}
+.vp-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.46rem;color:rgba(255,153,0,.3);pointer-events:none}
+.model-inp{padding:11px 16px;border-top:1px solid var(--border);background:rgba(7,5,0,.98);flex-shrink:0}
+.model-inp-row{display:flex;gap:9px;align-items:center}
+.model-inp-row input{flex:1;background:rgba(255,180,0,.03);border:1px solid var(--border);padding:9px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.78rem;outline:none;caret-color:var(--gold);transition:border-color .2s}
+.model-inp-row input:focus{border-color:var(--gdim)}
+.model-inp-row input::placeholder{color:rgba(240,222,160,.15)}
+.genbtn{background:rgba(255,204,0,.09);border:1px solid var(--gdim);color:var(--gold);font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.2em;padding:9px 15px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.genbtn:hover:not(:disabled){background:rgba(255,204,0,.2)}
+.genbtn:disabled{opacity:.3;cursor:not-allowed}
+.parts-panel{width:285px;flex-shrink:0;border-left:1px solid var(--border);background:rgba(9,7,0,.97);display:flex;flex-direction:column;overflow:hidden}
+.pp-hdr{padding:11px 13px 8px;border-bottom:1px solid rgba(255,180,0,.07)}
+.pp-ttl{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.26em;color:var(--orange);margin-bottom:2px}
+.pp-sub{font-family:'Share Tech Mono',monospace;font-size:.43rem;color:var(--tdim);letter-spacing:.07em}
+.parts-list{flex:1;overflow-y:auto;padding:9px 11px;display:flex;flex-direction:column;gap:5px}
+.parts-list::-webkit-scrollbar{width:2px}.parts-list::-webkit-scrollbar-thumb{background:var(--odim)}
+.pcard{background:rgba(18,13,0,.85);border:1px solid rgba(255,180,0,.1);padding:8px 10px;animation:fadeup .3s ease;position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange)}
+.pname{font-size:.66rem;color:var(--text);font-weight:500;margin-bottom:2px}
+.pdesc{font-size:.55rem;color:var(--tdim);line-height:1.45;margin-bottom:4px}
+.pfooter{display:flex;justify-content:space-between;align-items:center}
+.pqty{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--orange);letter-spacing:.07em}
+.pprice{font-family:'Orbitron',sans-serif;font-size:.58rem;color:var(--gold);font-weight:700}
+.no-parts{font-size:.56rem;color:rgba(255,180,0,.17);text-align:center;margin-top:28px;font-family:'Share Tech Mono',monospace;letter-spacing:.1em;line-height:2.2;padding:0 12px}
+.budget-bar{border-top:1px solid rgba(255,180,0,.1);padding:9px 11px;background:rgba(14,10,0,.95);flex-shrink:0}
+.bgrow{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.53rem;letter-spacing:.07em;padding:2px 0}
+.bglbl{color:var(--tdim)}.bgval{color:var(--gold);font-weight:700}
+.bgtotal{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,180,0,.14)}
+.bgtlbl{font-family:'Orbitron',sans-serif;font-size:.48rem;letter-spacing:.18em;color:var(--orange)}
+.bgtval{font-family:'Orbitron',sans-serif;font-size:.88rem;color:var(--gold);text-shadow:0 0 10px rgba(255,204,0,.4)}
+.loading-ov{position:absolute;inset:0;background:rgba(7,5,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;z-index:10}
+.lring{width:44px;height:44px;border:2px solid rgba(255,153,0,.18);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--orange);letter-spacing:.14em;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+/* ══════════════════════════════════
+   CODING LAB
+══════════════════════════════════ */
+.code-layout{display:flex;flex:1;overflow:hidden}
+.code-main{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.code-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(8,6,0,.97);border-bottom:1px solid var(--border);flex-shrink:0}
+.code-toolbar-left{display:flex;align-items:center;gap:12px}
+.code-toolbar-right{display:flex;gap:7px}
+.code-toolbar select{background:rgba(255,153,0,.08);border:1px solid var(--border);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:.6rem;padding:4px 10px;outline:none;cursor:pointer}
+.lang-hint{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(255,153,0,.4);letter-spacing:.06em}
+.code-btn{font-family:'Orbitron',sans-serif;font-size:.45rem;letter-spacing:.18em;padding:5px 13px;border:1px solid var(--border);color:var(--tdim);background:transparent;cursor:pointer;transition:all .2s}
+.code-btn:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,153,0,.08)}
+.code-btn.green{border-color:rgba(144,238,64,.4);color:var(--green)}
+.code-btn.green:hover{background:rgba(144,238,64,.12)}
+.code-btn.gold{border-color:var(--gdim);color:var(--gold)}
+.code-btn.gold:hover{background:rgba(255,204,0,.12)}
+.editor-wrap{flex:1;display:flex;overflow:hidden;background:rgba(5,4,0,.97);position:relative}
+.line-nums{width:40px;flex-shrink:0;padding:14px 8px;font-family:'Share Tech Mono',monospace;font-size:.72rem;line-height:1.6;color:rgba(255,153,0,.25);text-align:right;border-right:1px solid rgba(255,180,0,.08);user-select:none;overflow:hidden}
+.code-editor{flex:1;background:transparent;border:none;outline:none;padding:14px 16px;color:#f5e8c5;font-family:'Share Tech Mono',monospace;font-size:.74rem;line-height:1.6;resize:none;caret-color:var(--gold);tab-size:2}
+.code-editor::placeholder{color:rgba(255,180,0,.18)}
+.output-bar{flex-shrink:0;height:130px;border-top:1px solid var(--border);display:flex;flex-direction:column;background:rgba(4,3,0,.98)}
+.output-hdr{display:flex;justify-content:space-between;padding:5px 14px;border-bottom:1px solid rgba(255,180,0,.08);font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.22em;color:var(--orange)}
+.run-status{font-size:.44rem;letter-spacing:.14em}
+.run-status.ok{color:var(--green)}.run-status.err{color:var(--red)}.run-status.run{color:var(--gold)}
+.code-output{flex:1;overflow-y:auto;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:.68rem;line-height:1.6;color:#a0f0a0;white-space:pre-wrap}
+.code-output::-webkit-scrollbar{width:2px}.code-output::-webkit-scrollbar-thumb{background:var(--odim)}
+.code-output .err-line{color:#ff8888}
+/* Tips panel */
+.code-tips-panel{width:280px;flex-shrink:0;background:rgba(9,7,0,.97);display:flex;flex-direction:column;overflow:hidden}
+.ctp-hdr{padding:12px 14px 9px;border-bottom:1px solid rgba(255,180,0,.07)}
+.ctp-ttl{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.26em;color:var(--orange);margin-bottom:2px}
+.ctp-sub{font-family:'Share Tech Mono',monospace;font-size:.44rem;color:var(--tdim);letter-spacing:.07em}
+.ctp-tips{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ctp-tips::-webkit-scrollbar{width:2px}.ctp-tips::-webkit-scrollbar-thumb{background:var(--odim)}
+.tip-card{background:rgba(18,13,0,.85);border:1px solid rgba(255,180,0,.1);border-left:2px solid var(--orange);padding:9px 11px;animation:fadeup .3s ease}
+.tip-card.tip-intro{border-left-color:var(--gold)}
+.tip-icon{font-size:.85rem;margin-bottom:4px}
+.tip-title{font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.16em;color:var(--gold);margin-bottom:5px}
+.tip-body{font-size:.62rem;line-height:1.6;color:var(--tdim)}
+.tip-body code{background:rgba(255,153,0,.1);padding:1px 5px;color:var(--orange);font-family:'Share Tech Mono',monospace;font-size:.6rem}
+.tip-card.ai-tip{border-left-color:var(--green)}
+.tip-card.ai-tip .tip-title{color:var(--green)}
+.ctp-ask{display:flex;gap:7px;padding:10px 12px;border-top:1px solid rgba(255,180,0,.07);background:rgba(7,5,0,.98);flex-shrink:0}
+.ctp-ask-input{flex:1;background:rgba(255,180,0,.03);border:1px solid var(--border);padding:7px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.72rem;outline:none;caret-color:var(--gold)}
+.ctp-ask-input:focus{border-color:var(--gdim)}
+.ctp-ask-input::placeholder{color:rgba(240,222,160,.15)}
+.ctp-ask-btn{background:rgba(255,204,0,.09);border:1px solid var(--gdim);color:var(--gold);font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.2em;padding:7px 13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.ctp-ask-btn:hover{background:rgba(255,204,0,.2)}
+
+/* ══════════════════════════════════
+   POKEMON BREAK
+══════════════════════════════════ */
+.poke-layout{display:flex;flex:1;overflow:hidden}
+.poke-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.poke-header{display:flex;align-items:center;gap:20px;padding:10px 18px;background:rgba(8,6,0,.97);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.poke-title{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.22em;color:var(--gold);white-space:nowrap}
+.poke-timer-wrap{display:flex;align-items:center;gap:10px;flex:1}
+.poke-timer-label{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--tdim);letter-spacing:.1em;white-space:nowrap}
+.poke-timer{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--green);letter-spacing:.1em;text-shadow:0 0 14px rgba(144,238,64,.5);white-space:nowrap}
+.poke-timer.warning{color:var(--orange);text-shadow:0 0 14px rgba(255,153,0,.5)}
+.poke-timer.danger{color:var(--red);text-shadow:0 0 14px rgba(255,68,68,.5);animation:blink2 1s ease-in-out infinite}
+@keyframes blink2{0%,100%{opacity:1}50%{opacity:.4}}
+.poke-timer-bar-wrap{flex:1;max-width:180px;height:4px;background:rgba(144,238,64,.1);border-radius:2px;overflow:hidden}
+.poke-timer-bar{height:100%;background:linear-gradient(90deg,var(--ndim),var(--green));box-shadow:0 0 6px var(--green);border-radius:2px;transition:width .5s,background .5s}
+.poke-timer-sub{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--tdim);letter-spacing:.08em;white-space:nowrap}
+.poke-controls{display:flex;gap:7px;flex-shrink:0}
+.poke-btn{font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.16em;padding:6px 13px;border:1px solid var(--border);color:var(--tdim);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+.poke-btn:hover{border-color:var(--orange);color:var(--orange)}
+.poke-btn.green{border-color:rgba(144,238,64,.4);color:var(--green)}
+.poke-btn.green:hover{background:rgba(144,238,64,.1)}
+.poke-btn.red{border-color:rgba(255,68,68,.3);color:var(--red)}
+.poke-btn.red:hover{background:rgba(255,68,68,.08)}
+.poke-game-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;background:rgba(5,3,0,.8);overflow:hidden}
+.poke-screen-border{background:linear-gradient(145deg,#2a1a00,#1a0f00,#2a1a00);border:2px solid rgba(255,153,0,.3);border-radius:12px 12px 20px 20px;padding:12px 16px 20px;box-shadow:0 0 30px rgba(255,153,0,.15),inset 0 0 20px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;gap:10px;max-height:100%;width:380px}
+.poke-screen-label{font-family:'Orbitron',sans-serif;font-size:.42rem;letter-spacing:.3em;color:rgba(255,153,0,.4)}
+.poke-game-container{width:340px;height:240px;background:#0a0600;border:3px solid rgba(255,153,0,.4);border-radius:4px;overflow:hidden;position:relative;box-shadow:inset 0 0 20px rgba(0,0,0,.8),0 0 15px rgba(255,153,0,.2)}
+.poke-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:radial-gradient(ellipse at 50% 40%,#1a0800,#080300)}
+.poke-logo{text-align:center}
+.poke-logo-top{font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:.25em;color:var(--gold);text-shadow:0 0 12px rgba(255,204,0,.6)}
+.poke-logo-fire{font-size:1.1rem;margin:3px 0}
+.poke-logo-version{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:var(--orange)}
+.poke-start-msg{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(255,180,0,.6);text-align:center;letter-spacing:.06em;line-height:1.7}
+.poke-sprites{display:flex;gap:12px;font-size:1.4rem;animation:pokeFloat 3s ease-in-out infinite}
+@keyframes pokeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.gba-buttons{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 10px}
+.gba-dpad{position:relative;width:44px;height:44px}
+.dpad-h{position:absolute;top:50%;left:0;transform:translateY(-50%);width:44px;height:14px;background:rgba(255,153,0,.2);border-radius:3px;border:1px solid rgba(255,153,0,.3)}
+.dpad-v{position:absolute;left:50%;top:0;transform:translateX(-50%);width:14px;height:44px;background:rgba(255,153,0,.2);border-radius:3px;border:1px solid rgba(255,153,0,.3)}
+.gba-abxy{display:flex;gap:6px}
+.gba-btn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.48rem;font-family:'Orbitron',sans-serif;border:1px solid}
+.gba-b{background:rgba(255,68,68,.2);border-color:rgba(255,68,68,.4);color:var(--red)}
+.gba-a{background:rgba(144,238,64,.2);border-color:rgba(144,238,64,.4);color:var(--green)}
+.gba-menu{display:flex;gap:8px}
+.gba-sm{font-family:'Share Tech Mono',monospace;font-size:.38rem;color:rgba(255,153,0,.4);letter-spacing:.06em;background:rgba(255,153,0,.08);padding:3px 7px;border-radius:8px;border:1px solid rgba(255,153,0,.15)}
+/* Poke sidebar */
+.poke-sidebar{width:220px;flex-shrink:0;border-left:1px solid var(--border);background:rgba(9,7,0,.97);display:flex;flex-direction:column;overflow-y:auto}
+.poke-sb-hdr{font-family:'Orbitron',sans-serif;font-size:.44rem;letter-spacing:.26em;color:var(--orange);padding:12px 12px 4px}
+.poke-sb-body{padding:6px 12px 12px;border-bottom:1px solid rgba(255,180,0,.07)}
+.poke-stat{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.54rem;padding:4px 0;border-bottom:1px solid rgba(255,180,0,.05);color:var(--tdim)}
+.poke-stat:last-child{border-bottom:none}
+.psv{color:var(--gold)}.psv.orange{color:var(--orange)}.psv.green{color:var(--green)}
+.poke-instruction{font-family:'Share Tech Mono',monospace;font-size:.53rem;color:var(--tdim);padding:3px 12px;line-height:1.6}
+.poke-verse-card{margin:10px 12px;background:rgba(18,13,0,.8);border:1px solid rgba(255,180,0,.1);border-left:2px solid var(--gold);padding:10px 11px}
+/* ══════════════════════════════════
+   IDEAS — CHOKMA RECORDER
+══════════════════════════════════ */
+.ideas-layout{display:flex;flex:1;overflow:hidden;height:100%;width:100%;min-height:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,153,0,.04),transparent 70%)}
+.ideas-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:18px 24px;overflow-y:auto;gap:16px;min-height:0}
+.ideas-center::-webkit-scrollbar{width:3px}.ideas-center::-webkit-scrollbar-thumb{background:var(--odim)}
+
+/* Chokma header */
+.gideon-header{width:100%;max-width:700px;display:flex;flex-direction:column;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid rgba(255,153,0,.12)}
+.gideon-eyebrow{font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.28em;color:rgba(255,153,0,.4)}
+.gideon-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:2.2rem;letter-spacing:.55em;color:var(--gold);text-shadow:0 0 30px rgba(255,204,0,.6),0 0 60px rgba(255,204,0,.25);animation:gideonPulse 4s ease-in-out infinite}
+@keyframes gideonPulse{0%,100%{text-shadow:0 0 30px rgba(255,204,0,.6),0 0 60px rgba(255,204,0,.25)}50%{text-shadow:0 0 40px rgba(255,204,0,.9),0 0 80px rgba(255,204,0,.4),0 0 120px rgba(255,153,0,.2)}}
+.gideon-sub{font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:.35em;color:rgba(255,153,0,.5)}
+.gideon-status-row{display:flex;gap:10px;margin-top:4px}
+.gideon-chip{font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.12em;padding:3px 12px;border:1px solid var(--border);color:var(--tdim);transition:all .3s}
+.gideon-chip.rec{border-color:rgba(255,68,68,.5);color:var(--red);animation:recBlink 1s ease-in-out infinite}
+.gideon-chip.live{border-color:var(--ndim);color:var(--green)}
+@keyframes recBlink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Visualizer */
+.gideon-viz{position:relative;width:260px;height:260px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.viz-rings{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.viz-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,153,0,.15);transition:all .3s}
+.vr1{width:100px;height:100px;animation:vring1 6s linear infinite}
+.vr2{width:160px;height:160px;animation:vring1 10s linear infinite reverse;border-style:dashed}
+.vr3{width:230px;height:230px;animation:vring1 16s linear infinite;border-style:dotted}
+@keyframes vring1{to{transform:rotate(360deg)}}
+.viz-ring.active{border-color:rgba(255,153,0,.5);box-shadow:0 0 14px rgba(255,153,0,.2)}
+.vr1.active{animation-duration:1.5s}
+.vr2.active{animation-duration:2.5s}
+.vr3.active{animation-duration:4s}
+.viz-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2;pointer-events:none}
+.viz-icon{font-size:1.6rem;color:var(--orange);text-shadow:0 0 20px var(--orange);transition:all .3s;animation:vizIdle 3s ease-in-out infinite}
+@keyframes vizIdle{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.viz-icon.recording{color:var(--red);text-shadow:0 0 24px var(--red);animation:vizRec .8s ease-in-out infinite}
+@keyframes vizRec{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.viz-label{font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.2em;color:rgba(255,153,0,.5);text-align:center;white-space:nowrap}
+.wave-canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;pointer-events:none}
+
+/* Controls */
+.gideon-controls{display:flex;gap:12px;align-items:center}
+.gideon-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:rgba(255,153,0,.08);border:1px solid var(--orange);padding:14px 24px;cursor:pointer;transition:all .25s;min-width:100px}
+.gideon-btn:hover:not(:disabled){background:rgba(255,153,0,.2);box-shadow:0 0 20px rgba(255,153,0,.25)}
+.gideon-btn:disabled{opacity:.3;cursor:not-allowed}
+.gideon-btn.secondary{background:transparent;border-color:var(--border)}
+.gideon-btn.secondary:hover:not(:disabled){border-color:var(--orange)}
+.gideon-btn.recording{background:rgba(255,68,68,.15);border-color:var(--red);box-shadow:0 0 20px rgba(255,68,68,.2);animation:recGlow 1s ease-in-out infinite}
+@keyframes recGlow{0%,100%{box-shadow:0 0 20px rgba(255,68,68,.2)}50%{box-shadow:0 0 30px rgba(255,68,68,.5)}}
+.gbtn-icon{font-size:1.1rem;color:var(--orange)}
+.gideon-btn.recording .gbtn-icon{color:var(--red)}
+.gbtn-label{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.2em;color:var(--gold)}
+
+/* Rec info */
+.gideon-rec-info{display:flex;align-items:center;gap:10px}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,153,0,.3);transition:all .3s}
+.rec-dot.live{background:var(--red);box-shadow:0 0 10px var(--red);animation:recBlink 1s ease-in-out infinite}
+.rec-dot.done{background:var(--green);box-shadow:0 0 8px var(--green);animation:none}
+.rec-time{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);letter-spacing:.15em;min-width:60px}
+.rec-label{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:var(--tdim);letter-spacing:.12em}
+
+/* Title input */
+.gideon-title-input-wrap{display:flex;align-items:center;gap:10px;width:100%;max-width:500px}
+.gti-label{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--orange);letter-spacing:.14em;white-space:nowrap}
+.gti-input{flex:1;background:rgba(255,153,0,.04);border:1px solid var(--border);padding:8px 14px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.72rem;outline:none;caret-color:var(--gold);letter-spacing:.05em;transition:border-color .2s}
+.gti-input:focus{border-color:var(--gold-dim)}
+.gti-input::placeholder{color:rgba(255,180,0,.18)}
+
+/* Archive */
+.ideas-archive{width:300px;flex-shrink:0;border-left:1px solid var(--border);background:rgba(9,7,0,.97);display:flex;flex-direction:column;overflow:hidden;height:100%;min-height:0}
+.archive-hdr{padding:13px 14px 8px;border-bottom:1px solid rgba(255,180,0,.07);display:flex;justify-content:space-between;align-items:center}
+.archive-ttl{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.28em;color:var(--orange)}
+.archive-count{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--tdim);letter-spacing:.08em}
+.archive-search{padding:8px 12px;border-bottom:1px solid rgba(255,180,0,.06)}
+.archive-search-input{width:100%;background:rgba(255,180,0,.03);border:1px solid var(--border);padding:6px 11px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.62rem;outline:none;caret-color:var(--gold)}
+.archive-search-input:focus{border-color:var(--gold-dim)}
+.archive-search-input::placeholder{color:rgba(255,180,0,.16)}
+.archive-list{flex:1;overflow-y:auto;padding:10px 11px;display:flex;flex-direction:column;gap:8px}
+.archive-list::-webkit-scrollbar{width:2px}.archive-list::-webkit-scrollbar-thumb{background:var(--odim)}
+.archive-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:30px 10px;text-align:center}
+.ae-icon{font-size:1.8rem;color:rgba(255,153,0,.2)}
+.ae-title{font-family:'Orbitron',sans-serif;font-size:.46rem;letter-spacing:.22em;color:rgba(255,153,0,.3)}
+.ae-sub{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(255,180,0,.2);line-height:1.7;letter-spacing:.06em}
+
+/* Idea card */
+.idea-card{background:rgba(18,13,0,.88);border:1px solid rgba(255,180,0,.12);border-left:3px solid var(--orange);padding:10px 12px;animation:fadeup .3s ease;cursor:pointer;transition:border-color .2s}
+.idea-card:hover{border-color:var(--gold-dim);border-left-color:var(--gold)}
+.idea-card.playing{border-left-color:var(--green);background:rgba(10,22,0,.9)}
+.ic-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.ic-title{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:.15em;color:var(--gold)}
+.ic-date{font-family:'Share Tech Mono',monospace;font-size:.44rem;color:var(--tdim);letter-spacing:.06em;white-space:nowrap}
+.ic-duration{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--orange);letter-spacing:.1em;margin-bottom:5px}
+.ic-actions{display:flex;gap:6px;margin-top:7px}
+.ic-btn{font-family:'Share Tech Mono',monospace;font-size:.44rem;letter-spacing:.1em;padding:3px 10px;border:1px solid var(--border);color:var(--tdim);background:transparent;cursor:pointer;transition:all .18s}
+.ic-btn:hover{border-color:var(--orange);color:var(--orange)}
+.ic-btn.play{border-color:var(--ndim);color:var(--green)}
+.ic-btn.del{border-color:rgba(255,68,68,.3);color:var(--red)}
+.ic-waveform{display:flex;align-items:center;gap:1px;height:18px;margin:4px 0}
+.ic-wbar{flex:1;background:var(--orange);border-radius:1px;opacity:.5;min-height:2px;max-height:16px}
+
+/* Archive footer */
+.archive-footer{padding:8px 12px;border-top:1px solid rgba(255,180,0,.07);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.archive-clear-btn{font-family:'Share Tech Mono',monospace;font-size:.46rem;letter-spacing:.12em;padding:4px 10px;border:1px solid rgba(255,68,68,.2);color:rgba(255,68,68,.5);background:transparent;cursor:pointer;transition:all .2s}
+.archive-clear-btn:hover{border-color:var(--red);color:var(--red)}
+.archive-storage{font-family:'Share Tech Mono',monospace;font-size:.46rem;color:rgba(255,180,0,.3);letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<!-- ═══ MASTER NAV ═══ -->
+<nav class="mastnav">
+  <div class="mastnav-brand">C.H.O.K.M.A.<em>// UNIFIED SYSTEM</em></div>
+  <div class="masttabs">
+    <div class="mtab on" onclick="switchPage('chat',this)"><span class="mtab-ic">💬</span>AI CHAT</div>
+    <div class="mtab" onclick="switchPage('hud',this)"><span class="mtab-ic">🛡️</span>HUD DISPLAY</div>
+    <div class="mtab" onclick="switchPage('ideas',this)"><span class="mtab-ic">🎙️</span>IDEAS</div>
+    <div class="mtab" onclick="switchPage('bs',this)"><span class="mtab-ic">⚡</span>BRAINSTORM LAB</div>
+  </div>
+  <div class="mastnav-right">
+    <div class="ns on">SPIRIT: ACTIVE</div>
+    <button id="globalSpeakBtn" onclick="toggleSpeakMode()" title="Toggle CHOKMA voice" style="background:rgba(255,153,0,.08);border:1px solid var(--border);color:var(--orange);font-size:.9rem;padding:4px 10px;cursor:pointer;transition:all .2s;border-radius:2px">🔊</button>
+    <div id="masterClock">00:00:00</div>
+  </div>
+</nav>
+
+<!-- ═══ API BAR ═══ -->
+<div class="apibar" id="apiBar">
+  <label>⚠ API KEY ›</label>
+  <input type="password" id="apiKeyIn" placeholder="sk-ant-api03-... (Anthropic API key)"/>
+  <button onclick="activateKey()">ACTIVATE</button>
+  <div id="apiStatus">NO KEY</div>
+</div>
+
+<!-- ═══ PAGES ═══ -->
+<div class="pages">
+
+<!-- ────────────────────────────────
+  PAGE 1: AI CHAT
+──────────────────────────────── -->
+<div class="page on" id="page-chat">
+  <div class="chat-layout">
+    <aside class="chat-sidebar">
+      <div class="sb-sec">
+        <div class="sb-ttl">SYSTEM</div>
+        <div class="sblk"><div class="slbl">CPU <span id="cpu">72%</span></div><div class="bar"><div class="bf" id="cpuBar" style="width:72%"></div></div></div>
+        <div class="sblk"><div class="slbl">MEMORY <span id="mem">4.2 GB</span></div><div class="bar"><div class="bf" id="memBar" style="width:58%"></div></div></div>
+        <div class="sblk"><div class="slbl">NEURAL <span class="n">ACTIVE</span></div><div class="bar"><div class="bf n" style="width:91%"></div></div></div>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-ttl">POWER CORE</div>
+        <div class="sblk"><div class="slbl">ARC REACTOR <span class="g">98.4%</span></div><div class="bar"><div class="bf g" style="width:98%"></div></div></div>
+        <div class="irow"><span>OUTPUT</span><span class="iv g">3.2 GW</span></div>
+        <div class="irow"><span>EFFICIENCY</span><span class="ivo">99.1%</span></div>
+        <div class="irow"><span>RESERVE</span><span class="iv">12.3%</span></div>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-ttl">SESSION</div>
+        <div class="irow"><span>QUERIES</span><span class="ivo" id="qc">0</span></div>
+        <div class="irow"><span>TOKENS</span><span class="iv" id="tok">—</span></div>
+        <div class="irow"><span>LATENCY</span><span class="iv" id="lat">—</span></div>
+        <div class="irow"><span>ENCRYPT</span><span class="ivn">ON</span></div>
+        <div class="irow"><span>FIREWALL</span><span class="ivn">ACTIVE</span></div>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-ttl">ALERTS</div>
+        <div class="alertbox">⚡ SECTOR 7 ANOMALY<br>MONITORING IN PROGRESS</div>
+      </div>
+    </aside>
+    <div class="chat-main">
+      <div class="chat-hdr">
+        <div class="chat-ttl">// INTELLIGENCE CHANNEL</div>
+        <div class="ctags"><div class="ctag on">CONNECTED</div><div class="ctag">CHOKMA v1.0</div><div class="ctag">SECURE</div></div>
+      </div>
+      <div class="messages" id="chatMsgs">
+        <div class="msg">
+          <div class="av av-ai">CHO<br>KMA</div>
+          <div class="mbody">
+            <div class="mmeta ai">C.H.O.K.M.A. // SYSTEM INIT</div>
+            <div class="bubble bai">Greetings. I am <strong style="color:var(--gold)">C.H.O.K.M.A.</strong> — Cognitive Heuristic Operations &amp; Knowledge Management Architecture, named after the Hebrew word for divine Wisdom.<br><br>All systems nominal. How may I serve you today?</div>
+          </div>
+        </div>
+      </div>
+      <div class="input-zone">
+        <div class="input-row">
+          <div class="ipfx">QUERY ›</div>
+          <input class="txtin" id="chatInput" placeholder="Ask anything… or tap 🎤 to speak" onkeydown="if(event.key==='Enter')chatSend()"/>
+          <button class="micbtn" id="chatMicBtn" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
+          <button class="micbtn speak-toggle" id="chatSpeakBtn" onclick="toggleSpeakMode()" title="Toggle CHOKMA speaking responses aloud">🔊</button>
+          <button class="sndbtn" id="chatBtn" onclick="chatSend()">TRANSMIT</button>
+        </div>
+        <div class="voice-status-row" id="voiceStatusRow" style="display:none">
+          <div class="voice-pulse"></div>
+          <span id="voiceStatusText">LISTENING...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────
+  PAGE 2: HUD
+──────────────────────────────── -->
+<div class="page" id="page-hud">
+  <div class="hud-page" id="hudPage">
+    <div class="scanline"></div>
+    <div class="hud-topbar">
+      <div class="htb-brand">C.H.O.K.M.A.<span>// WISDOM HUD</span></div>
+      <div class="htb-center">
+        <div class="htb-stat">WISDOM<strong>DIVINE</strong></div>
+        <div class="htb-stat">SCRIPTURE<strong>31,102</strong></div>
+        <div class="htb-stat">SPIRIT<strong>SECURE</strong></div>
+        <div class="htb-stat">UPTIME<strong id="hudUptime">00:00</strong></div>
+      </div>
+      <div class="htb-right">
+        <div class="hpill warn">⚡ FLESH THREATS</div>
+        <div class="hpill ok">SPIRIT: ACTIVE</div>
+        <div id="hudClock">00:00:00</div>
+      </div>
+    </div>
+    <div class="arc">
+      <div class="ring r5"></div><div class="ring r4"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+      <div class="arc-core"></div>
+    </div>
+    <!-- Diagnostics panel -->
+    <div class="hpanel hp-tl">
+      <div class="hphdr">// SYSTEM DIAGNOSTICS</div>
+      <div class="hpbody">
+        <div class="hbrow"><div class="hblbl"><span>POWER CORE</span><span>98.4%</span></div><div class="hbtrack"><div class="hbfill g" style="width:98%"></div></div></div>
+        <div class="hbrow"><div class="hblbl"><span>NEURAL ENGINE</span><span>91%</span></div><div class="hbtrack"><div class="hbfill" style="width:91%"></div></div></div>
+        <div class="hbrow"><div class="hblbl"><span>WISDOM INDEX</span><span>∞</span></div><div class="hbtrack"><div class="hbfill n" style="width:100%"></div></div></div>
+        <div class="hbrow"><div class="hblbl"><span>SPIRIT LINK</span><span id="hSlink">84%</span></div><div class="hbtrack"><div class="hbfill g" id="hSlinkBar" style="width:84%"></div></div></div>
+        <div style="margin-top:7px">
+          <div class="hsr"><span>OUTPUT</span><span class="hsvg">3.2 GW</span></div>
+          <div class="hsr"><span>HEART RATE</span><span class="hsv" id="hHR">72 BPM</span></div>
+          <div class="hsr"><span>INTEGRITY</span><span class="hsvn">NOMINAL</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Daily verse panel -->
+    <div class="hpanel hp-tr">
+      <div class="hphdr">// WORD OF THE DAY</div>
+      <div class="hpbody">
+        <div class="vdate" id="hVdate"></div>
+        <div class="vtext" id="hVtext"></div>
+        <div class="vref" id="hVref"></div>
+        <div style="margin-top:9px">
+          <div class="hsr"><span>SOURCE</span><span class="hsv">HOLY BIBLE (KJV)</span></div>
+          <div class="hsr"><span>WISDOM</span><span class="hsvn">DIVINE</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Comms panel -->
+    <div class="hpanel hp-bl">
+      <div class="hphdr">// COMMUNICATIONS</div>
+      <div class="hpbody">
+        <div class="waveform" id="hudWaveform"></div>
+        <div class="logwrap"><div class="loginner">
+          <div class="logline">[<span>INIT</span>] Uplink secured — AES-256 active</div>
+          <div class="logline">[<span>SYNC</span>] Scripture database: 31,102 verses loaded</div>
+          <div class="logline">[<span>NET</span>] Neural bandwidth: 98.7 Gbps nominal</div>
+          <div class="logline">[<span>WARN</span>] Galatians 5:19 — flesh threats identified</div>
+          <div class="logline">[<span>OK</span>] Spirit link: ACTIVE — Galatians 5:22</div>
+          <div class="logline">[<span>CORE</span>] Wisdom engine: DIVINE — Proverbs 9:10</div>
+          <div class="logline">[<span>INIT</span>] Uplink secured — AES-256 active</div>
+          <div class="logline">[<span>SYNC</span>] Scripture database: 31,102 verses loaded</div>
+          <div class="logline">[<span>NET</span>] Neural bandwidth: 98.7 Gbps nominal</div>
+          <div class="logline">[<span>WARN</span>] Galatians 5:19 — flesh threats identified</div>
+          <div class="logline">[<span>OK</span>] Spirit link: ACTIVE — Galatians 5:22</div>
+          <div class="logline">[<span>CORE</span>] Wisdom engine: DIVINE — Proverbs 9:10</div>
+        </div></div>
+        <div style="margin-top:5px">
+          <div class="hsr"><span>CHANNEL</span><span class="hsv">SEC-7 ENCRYPTED</span></div>
+          <div class="hsr"><span>SIGNAL</span><span class="hsvn">STRONG</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Flesh panel -->
+    <div class="hpanel hp-br">
+      <div class="hphdr" style="color:var(--red);border-bottom-color:rgba(255,68,68,.14)">// WORKS OF THE FLESH</div>
+      <div class="hpbody">
+        <div class="fref">Galatians 5:19-21 (KJV)</div>
+        <div class="fquote">"Now the works of the flesh are manifest: adultery, fornication, uncleanness, lasciviousness, idolatry, witchcraft, hatred, wrath, strife, envyings, murders, drunkenness..."</div>
+        <div class="hsr" style="border-bottom-color:rgba(255,68,68,.07)"><span>LUST OF THE FLESH</span><span class="hsvr">⚠ ACTIVE</span></div>
+        <div class="hsr" style="border-bottom-color:rgba(255,68,68,.07)"><span>LUST OF THE EYES</span><span class="hsvr">⚠ ACTIVE</span></div>
+        <div class="hsr" style="border-bottom-color:rgba(255,68,68,.07)"><span>PRIDE OF LIFE</span><span class="hsvr">⚠ ACTIVE</span></div>
+        <div class="victory">✦ SPIRIT OVERCOMES THE FLESH ✦<br><span style="color:rgba(144,238,64,.5)">Romans 8:13 — Galatians 5:16</span></div>
+      </div>
+    </div>
+    <!-- Command bar -->
+    <div class="cmdwrap">
+      <div class="cmdout" id="cmdOut"></div>
+      <div class="cmdinput-row">
+        <div class="cmdpfx">CHOKMA ›</div>
+        <input class="cmdinput" id="cmdInput" placeholder="type a command… (try: help)" onkeydown="handleCmd(event)" autocomplete="off" spellcheck="false"/>
+      </div>
+    </div>
+    <div class="hud-botbar">
+      <span>C.H.O.K.M.A. // COGNITIVE HEURISTIC OPERATIONS &amp; KNOWLEDGE MANAGEMENT ARCHITECTURE</span>
+      <span id="hudDate"></span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ────────────────────────────────
+  PAGE: IDEAS — CHOKMA VOICE RECORDER
+──────────────────────────────── -->
+<div class="page" id="page-ideas">
+  <div class="ideas-layout">
+
+    <!-- CENTER: Chokma interface -->
+    <div class="ideas-center">
+
+      <!-- Chokma header -->
+      <div class="gideon-header">
+        <div class="gideon-title-wrap">
+          <div class="gideon-eyebrow">CHOKMA // ADVANCED INTELLIGENCE SYSTEM</div>
+          <div class="gideon-title">C H O K M A</div>
+          <div class="gideon-sub">VOICE IDEA RECORDER &amp; ARCHIVE</div>
+        </div>
+        <div class="gideon-status-row">
+          <div class="gideon-chip" id="gideonMicStatus">● MIC: OFFLINE</div>
+          <div class="gideon-chip" id="gideonRecStatus">◌ STANDBY</div>
+          <div class="gideon-chip">⬡ NEURAL: ACTIVE</div>
+        </div>
+      </div>
+
+      <!-- Waveform visualizer -->
+      <div class="gideon-viz">
+        <div class="viz-rings">
+          <div class="viz-ring vr1"></div>
+          <div class="viz-ring vr2"></div>
+          <div class="viz-ring vr3"></div>
+        </div>
+        <div class="viz-core" id="vizCore">
+          <div class="viz-icon" id="vizIcon">◎</div>
+          <div class="viz-label" id="vizLabel">AWAITING INPUT</div>
+        </div>
+        <canvas id="waveCanvas" class="wave-canvas"></canvas>
+      </div>
+
+      <!-- Record controls -->
+      <div class="gideon-controls">
+        <button class="gideon-btn" id="btnRecord" onclick="ideasRecord()">
+          <span class="gbtn-icon">⬤</span>
+          <span class="gbtn-label">RECORD IDEA</span>
+        </button>
+        <button class="gideon-btn secondary" id="btnStop" onclick="ideasStop()" disabled>
+          <span class="gbtn-icon">◼</span>
+          <span class="gbtn-label">STOP</span>
+        </button>
+        <button class="gideon-btn secondary" id="btnPause" onclick="ideasPauseResume()" disabled>
+          <span class="gbtn-icon">⏸</span>
+          <span class="gbtn-label">PAUSE</span>
+        </button>
+      </div>
+
+      <!-- Recording timer -->
+      <div class="gideon-rec-info">
+        <div class="rec-dot" id="recDot"></div>
+        <div class="rec-time" id="recTime">00:00</div>
+        <div class="rec-label" id="recLabel">PRESS RECORD TO BEGIN</div>
+      </div>
+
+      <!-- Title input for new recording -->
+      <div class="gideon-title-input-wrap">
+        <div class="gti-label">IDEA TITLE ›</div>
+        <input id="ideaTitle" class="gti-input" placeholder="Name this idea before recording…" maxlength="60"/>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Archive panel -->
+    <div class="ideas-archive">
+      <div class="archive-hdr">
+        <div class="archive-ttl">// IDEA ARCHIVE</div>
+        <div class="archive-count" id="archiveCount">0 entries</div>
+      </div>
+      <div class="archive-search">
+        <input id="archiveSearch" class="archive-search-input" placeholder="Search ideas…" oninput="ideasSearch()"/>
+      </div>
+      <div class="archive-list" id="archiveList">
+        <div class="archive-empty" id="archiveEmpty">
+          <div class="ae-icon">◎</div>
+          <div class="ae-title">NO IDEAS RECORDED YET</div>
+          <div class="ae-sub">Press RECORD IDEA and speak.<br>Your ideas will be archived here.</div>
+        </div>
+      </div>
+      <div class="archive-footer">
+        <button class="archive-clear-btn" onclick="ideasClearAll()">⊗ CLEAR ALL</button>
+        <div class="archive-storage" id="archiveStorage">0 KB used</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ────────────────────────────────
+  PAGE 3: BRAINSTORM
+──────────────────────────────── -->
+<div class="page" id="page-bs">
+  <div class="bs-layout">
+    <!-- Left sidebar -->
+    <aside class="bs-lsb">
+      <div class="lsec">
+        <div class="lttl">MODE</div>
+        <button class="mbtn on" onclick="bsSetMode('explore',this)"><span>🔭</span>EXPLORE TRENDS</button>
+        <button class="mbtn" onclick="bsSetMode('build',this)"><span>⚙️</span>BUILD PROJECT</button>
+        <button class="mbtn" onclick="bsSetMode('rebuild',this)"><span>🔧</span>REBUILD / IMPROVE</button>
+        <button class="mbtn" onclick="bsSetMode('invent',this)"><span>💡</span>INVENT NEW</button>
+        <button class="mbtn" onclick="bsSwitchTab('model',document.querySelectorAll('.bstab')[1])"><span>🧊</span>3D MODEL</button>
+        <button class="mbtn" onclick="bsSwitchTab('code',document.querySelectorAll('.bstab')[2])"><span>💻</span>CODING LAB</button>
+        <button class="mbtn" onclick="bsSwitchTab('poke',document.querySelectorAll('.bstab')[3])"><span>🎮</span>BREAK TIME</button>
+      </div>
+      <div class="lsec">
+        <div class="lttl">HOT TECH</div>
+        <button class="tbtn" onclick="bsQt('AI & Large Language Models')">AI & LLMs<span class="tb">⚡</span></button>
+        <button class="tbtn" onclick="bsQt('Robotics and Automation')">ROBOTICS<span class="tb">⚡</span></button>
+        <button class="tbtn" onclick="bsQt('Quantum Computing')">QUANTUM<span class="tb">🔬</span></button>
+        <button class="tbtn" onclick="bsQt('Biotech and Genomics')">BIOTECH<span class="tb">🔬</span></button>
+        <button class="tbtn" onclick="bsQt('Clean Energy and Solar')">CLEAN ENERGY<span class="tb">🌱</span></button>
+        <button class="tbtn" onclick="bsQt('Augmented Reality')">AR / XR<span class="tb">🌱</span></button>
+        <button class="tbtn" onclick="bsQt('Nanotechnology')">NANOTECH<span class="tb">🔬</span></button>
+        <button class="tbtn" onclick="bsQt('3D Printing')">3D PRINTING<span class="tb">⚙️</span></button>
+        <button class="tbtn" onclick="bsQt('Space Technology')">SPACE TECH<span class="tb">🚀</span></button>
+        <button class="tbtn" onclick="bsQt('Brain Computer Interfaces')">BCI / NEURO<span class="tb">🔬</span></button>
+      </div>
+    </aside>
+    <!-- Center + right -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0">
+      <div class="bstabbar">
+        <div class="bstab on" onclick="bsSwitchTab('chat',this)"><span>💬</span>BRAINSTORM CHAT</div>
+        <div class="bstab" onclick="bsSwitchTab('model',this)"><span>🧊</span>3D MODEL + BUDGET</div>
+        <div class="bstab" onclick="bsSwitchTab('code',this)"><span>💻</span>CODING LAB</div>
+        <div class="bstab" onclick="bsSwitchTab('poke',this)"><span>🎮</span>BREAK TIME</div>
+      </div>
+      <div class="bs-pages">
+        <!-- Chat sub-page -->
+        <div class="bs-page on" id="bs-page-chat">
+          <div class="bs-chat-wrap">
+            <div class="bs-main">
+              <div class="ws-bar">
+                <div class="ws-ttl">// INVENTION WORKSPACE</div>
+                <div class="ws-mode" id="bsWsMode">MODE: EXPLORE TRENDS</div>
+              </div>
+              <div class="bsmessages" id="bsMsgs">
+                <div class="msg">
+                  <div class="av av-ai">CHO<br>KMA</div>
+                  <div class="mbody">
+                    <div class="mmeta ai">C.H.O.K.M.A. // BRAINSTORM ENGINE</div>
+                    <div class="bubble bai">Welcome to the <strong style="color:var(--gold)">Brainstorm Lab</strong>. Select a mode, pick a tech area, or describe your idea below. Use the <strong style="color:var(--orange)">🧊 3D MODEL + BUDGET</strong> tab to visualize your invention with a full parts list and cost estimate.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="qprow" id="bsQpRow">
+                <button class="qp" onclick="bsUp(this)">Newest inventions right now?</button>
+                <button class="qp" onclick="bsUp(this)">Help me build a project</button>
+                <button class="qp" onclick="bsUp(this)">I have an idea — develop it</button>
+                <button class="qp" onclick="bsUp(this)">What problems should I solve?</button>
+              </div>
+              <div class="input-zone">
+                <div class="input-row">
+                  <div class="ipfx">IDEA ›</div>
+                  <input class="txtin" id="bsInput" placeholder="Describe your idea or ask about any technology…" onkeydown="if(event.key==='Enter'&&!event.shiftKey)bsSend()"/>
+                  <button class="sndbtn" id="bsBtn" onclick="bsSend()">TRANSMIT</button>
+                </div>
+              </div>
+            </div>
+            <aside class="bs-rsb">
+              <div class="rsb-hdr">// PROJECT NOTES</div>
+              <div class="notes" id="bsNotes">
+                <div class="no-notes" id="noNotes">NO IDEAS SAVED<br><br>BRAINSTORM FIRST<br>THEN SAVE YOUR<br>KEY INSIGHTS HERE</div>
+              </div>
+              <div class="rsb-foot"><button class="save-btn" onclick="bsSaveNote()">⊕ SAVE LAST IDEA</button></div>
+            </aside>
+          </div>
+        </div>
+        <!-- 3D sub-page -->
+        <div class="bs-page" id="bs-page-model">
+          <div class="model-layout">
+            <div class="vp-wrap">
+              <div class="vp-hdr">
+                <div class="vp-ttl" id="modelTitle">// 3D MODEL VIEWER</div>
+                <div class="vp-ctrl">
+                  <button class="vpbtn on" id="btnWire" onclick="toggleWire()">WIREFRAME</button>
+                  <button class="vpbtn" id="btnExplode" onclick="toggleExplode()">EXPLODE VIEW</button>
+                  <button class="vpbtn" onclick="resetCam()">RESET</button>
+                </div>
+              </div>
+              <canvas id="canvas3d"></canvas>
+              <div class="vp-hint">🖱 DRAG TO ROTATE &nbsp;|&nbsp; SCROLL TO ZOOM</div>
+              <div class="loading-ov" id="loadingOv" style="display:none">
+                <div class="lring"></div>
+                <div class="ltxt" id="ltxt">GENERATING MODEL...</div>
+              </div>
+            </div>
+            <div class="parts-panel">
+              <div class="pp-hdr">
+                <div class="pp-ttl">// PARTS & MATERIALS</div>
+                <div class="pp-sub" id="ppSub">Enter your invention below</div>
+              </div>
+              <div class="parts-list" id="partsList">
+                <div class="no-parts">DESCRIBE YOUR INVENTION<br>IN THE INPUT BELOW<br><br>CHOKMA WILL GENERATE:<br>• 3D VISUAL MODEL<br>• PARTS LIST<br>• BUDGET ESTIMATE</div>
+              </div>
+              <div class="budget-bar" id="budgetBar" style="display:none">
+                <div class="bgrow"><span class="bglbl">PARTS COUNT</span><span class="bgval" id="bParts">—</span></div>
+                <div class="bgrow"><span class="bglbl">LOW EST.</span><span class="bgval" id="bLow">—</span></div>
+                <div class="bgrow"><span class="bglbl">HIGH EST.</span><span class="bgval" id="bHigh">—</span></div>
+                <div class="bgtotal"><span class="bgtlbl">TOTAL BUDGET</span><span class="bgtval" id="bTotal">—</span></div>
+              </div>
+              <div style="padding:10px 11px;border-top:1px solid rgba(255,180,0,.07);background:rgba(7,5,0,.98)">
+                <div class="model-inp-row">
+                  <input id="modelInput" placeholder="e.g. solar-powered drone, smart water filter…" onkeydown="if(event.key==='Enter')generateModel()"/>
+                  <button class="genbtn" id="genBtn" onclick="generateModel()">GENERATE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- CODING LAB sub-page -->
+        <div class="bs-page" id="bs-page-code">
+          <div class="code-layout">
+            <!-- Left: editor + output -->
+            <div class="code-main">
+              <div class="code-toolbar">
+                <div class="code-toolbar-left">
+                  <select id="codeLang" onchange="updateLangHint()">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                  </select>
+                  <span id="langHint" class="lang-hint">console.log("hello")</span>
+                </div>
+                <div class="code-toolbar-right">
+                  <button class="code-btn green" onclick="runCode()">▶ RUN</button>
+                  <button class="code-btn" onclick="clearCode()">CLEAR</button>
+                  <button class="code-btn gold" onclick="analyzeCode()">✦ AI REVIEW</button>
+                </div>
+              </div>
+              <div class="editor-wrap">
+                <div class="line-nums" id="lineNums">1</div>
+                <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Start coding here…" oninput="updateLineNums()" onkeydown="handleTab(event)"></textarea>
+              </div>
+              <div class="output-bar">
+                <div class="output-hdr">
+                  <span>// OUTPUT</span>
+                  <span id="runStatus" class="run-status">READY</span>
+                </div>
+                <div id="codeOutput" class="code-output">Waiting for code to run…</div>
+              </div>
+            </div>
+            <!-- Right: AI tips panel -->
+            <div class="code-tips-panel">
+              <div class="ctp-hdr">
+                <div class="ctp-ttl">// CHOKMA CODE MENTOR</div>
+                <div class="ctp-sub" id="ctpSub">Ask for tips or run AI Review</div>
+              </div>
+              <div class="ctp-tips" id="ctpTips">
+                <div class="tip-card tip-intro">
+                  <div class="tip-icon">✦</div>
+                  <div class="tip-title">WELCOME TO THE CODING LAB</div>
+                  <div class="tip-body">Write code on the left, hit <strong style="color:var(--orange)">RUN</strong> to execute JavaScript instantly, or hit <strong style="color:var(--gold)">AI REVIEW</strong> to get CHOKMA's analysis, suggestions, and improvements for any language.</div>
+                </div>
+                <div class="tip-card">
+                  <div class="tip-icon">💡</div>
+                  <div class="tip-title">PRO TIP — CLEAN CODE</div>
+                  <div class="tip-body">Use meaningful variable names. <code>userAge</code> is clearer than <code>x</code>. Your future self will thank you.</div>
+                </div>
+                <div class="tip-card">
+                  <div class="tip-icon">🔧</div>
+                  <div class="tip-title">PRO TIP — DEBUGGING</div>
+                  <div class="tip-body">When stuck, add <code>console.log()</code> at each step to trace where your logic breaks. Isolate the problem before fixing it.</div>
+                </div>
+                <div class="tip-card">
+                  <div class="tip-icon">⚡</div>
+                  <div class="tip-title">PRO TIP — FUNCTIONS</div>
+                  <div class="tip-body">Break your code into small, single-purpose functions. Each function should do ONE thing well.</div>
+                </div>
+              </div>
+              <div class="ctp-ask">
+                <input id="codeAskInput" class="ctp-ask-input" placeholder="Ask CHOKMA anything about coding…" onkeydown="if(event.key==='Enter')askCodeAI()"/>
+                <button class="ctp-ask-btn" onclick="askCodeAI()">ASK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POKEMON BREAK sub-page -->
+        <div class="bs-page" id="bs-page-poke">
+          <div class="poke-layout">
+            <div class="poke-main">
+              <div class="poke-header">
+                <div class="poke-title">🎮 BREAK TIME — POKÉMON FIRE RED</div>
+                <div class="poke-timer-wrap">
+                  <div class="poke-timer-label">DAILY PLAY TIME</div>
+                  <div class="poke-timer" id="pokeTimer">1:30:00</div>
+                  <div class="poke-timer-bar-wrap">
+                    <div class="poke-timer-bar" id="pokeTimerBar" style="width:100%"></div>
+                  </div>
+                  <div class="poke-timer-sub" id="pokeTimerSub">1h 30m remaining today</div>
+                </div>
+                <div class="poke-controls">
+                  <button class="poke-btn green" id="pokePlayBtn" onclick="pokeStart()">▶ START BREAK</button>
+                  <button class="poke-btn" onclick="pokePause()">⏸ PAUSE</button>
+                  <button class="poke-btn red" onclick="pokeReset()">↺ RESET TODAY</button>
+                </div>
+              </div>
+              <div class="poke-game-wrap">
+                <div class="poke-screen-border">
+                  <div class="poke-screen-label">GAME BOY ADVANCE SP</div>
+                  <div class="poke-game-container" id="pokeContainer">
+                    <div class="poke-placeholder" id="pokePlaceholder">
+                      <div class="poke-logo">
+                        <div class="poke-logo-top">Pokémon</div>
+                        <div class="poke-logo-fire">🔥 FireRed 🔥</div>
+                        <div class="poke-logo-version">VERSION</div>
+                      </div>
+                      <div class="poke-start-msg" id="pokeStartMsg">Press START BREAK to play<br><span style="font-size:.55rem;opacity:.6">1h 30min daily limit • Resets at midnight</span></div>
+                      <div class="poke-sprites">
+                        <div class="poke-sprite" id="sprite1">🔴</div>
+                        <div class="poke-sprite" id="sprite2">🟡</div>
+                        <div class="poke-sprite" id="sprite3">🔵</div>
+                      </div>
+                    </div>
+                    <iframe id="pokeFrame" src="" style="display:none;width:100%;height:100%;border:none;"></iframe>
+                  </div>
+                  <div class="gba-buttons">
+                    <div class="gba-dpad">
+                      <div class="dpad-h"></div><div class="dpad-v"></div>
+                    </div>
+                    <div class="gba-abxy">
+                      <div class="gba-btn gba-b">B</div>
+                      <div class="gba-btn gba-a">A</div>
+                    </div>
+                    <div class="gba-menu">
+                      <div class="gba-sm">SELECT</div>
+                      <div class="gba-sm">START</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="poke-sidebar">
+              <div class="poke-sb-hdr">// TRAINER STATS</div>
+              <div class="poke-sb-body">
+                <div class="poke-stat"><span>TODAY'S SESSIONS</span><span class="psv" id="pokeSessions">0</span></div>
+                <div class="poke-stat"><span>TIME USED TODAY</span><span class="psv orange" id="pokeUsed">0:00</span></div>
+                <div class="poke-stat"><span>TIME REMAINING</span><span class="psv green" id="pokeRemain">1:30:00</span></div>
+                <div class="poke-stat"><span>STREAK</span><span class="psv gold" id="pokeStreak">0 days</span></div>
+                <div class="poke-stat"><span>STATUS</span><span class="psv" id="pokeStatus">IDLE</span></div>
+              </div>
+              <div style="padding:10px 12px;border-top:1px solid rgba(255,180,0,.08)">
+                <div class="poke-sb-hdr" style="margin-bottom:8px">// HOW TO PLAY</div>
+                <div class="poke-instruction">1. Click <strong style="color:var(--green)">START BREAK</strong> to begin your session</div>
+                <div class="poke-instruction">2. Game loads in the screen on the left</div>
+                <div class="poke-instruction">3. Timer counts down your 1h 30min</div>
+                <div class="poke-instruction">4. When time is up, game pauses automatically</div>
+                <div class="poke-instruction">5. Resets at midnight every day</div>
+              </div>
+              <div style="padding:10px 12px;border-top:1px solid rgba(255,180,0,.08)">
+                <div class="poke-sb-hdr" style="margin-bottom:8px">// CONTROLS</div>
+                <div class="poke-instruction">Arrow Keys — Move / Navigate</div>
+                <div class="poke-instruction">Z — A Button</div>
+                <div class="poke-instruction">X — B Button</div>
+                <div class="poke-instruction">Enter — Start</div>
+                <div class="poke-instruction">Shift — Select</div>
+              </div>
+              <div class="poke-verse-card">
+                <div style="font-size:.48rem;color:var(--orange);letter-spacing:.12em;margin-bottom:5px">// REST IS WISE</div>
+                <div style="font-size:.6rem;font-style:italic;color:#ffe0a0;line-height:1.6">"He makes me lie down in green pastures, he leads me beside quiet waters."</div>
+                <div style="font-size:.5rem;color:var(--orange);text-align:right;margin-top:4px">— Psalm 23:2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<script>
+// ══════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════
+let apiKey = '';
+let chatQc = 0;
+let bsMode = 'explore';
+let bsLastAI = '';
+let bsNoteN = 0;
+let wireMode = false, explodeMode = false;
+let threeScene, threeCamera, threeRenderer, modelGroup;
+let isDragging = false, prevMouse = {x:0,y:0}, rotX = 0.3, rotY = 0.5;
+let hudStartTime = Date.now();
+
+// ══ MASTER CLOCK ══
+(function masterTick(){
+  const n = new Date();
+  const ts = n.toLocaleTimeString('en-US',{hour12:false});
+  document.getElementById('masterClock').textContent = ts;
+  if(document.getElementById('hudClock')) document.getElementById('hudClock').textContent = ts;
+  if(document.getElementById('hudDate')) document.getElementById('hudDate').textContent = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+  const u = Math.floor((Date.now()-hudStartTime)/1000);
+  if(document.getElementById('hudUptime')) document.getElementById('hudUptime').textContent = String(Math.floor(u/60)).padStart(2,'0')+':'+String(u%60).padStart(2,'0');
+  setTimeout(masterTick, 1000);
+})();
+
+// ══ PAGE SWITCHING ══
+function fixHeights(){
+  // Force all layout containers to fill available space
+  const pages = document.querySelector('.pages');
+  if(pages){
+    const navH = document.querySelector('.mastnav')?.offsetHeight || 52;
+    const apiH = document.getElementById('apiBar')?.offsetHeight || 0;
+    const available = window.innerHeight - navH - apiH;
+    pages.style.height = available + 'px';
+    pages.style.maxHeight = available + 'px';
+  }
+}
+
+function switchPage(name, tabEl){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  tabEl.classList.add('on');
+  document.getElementById('page-'+name).classList.add('on');
+  if(name==='hud'){
+    initHudWaveform();
+    document.getElementById('cmdInput').focus();
+  }
+  if(name==='bs') setTimeout(resizeRenderer, 80);
+  setTimeout(fixHeights, 10);
+}
+
+window.addEventListener('resize', fixHeights);
+window.addEventListener('load', fixHeights);
+setTimeout(fixHeights, 100);
+
+// ══ API KEY ══
+function activateKey(){
+  const v = document.getElementById('apiKeyIn').value.trim();
+  if(!v.startsWith('sk-')){ alert('Invalid key — must begin with sk-'); return; }
+  apiKey = v;
+  document.getElementById('apiBar').style.display = 'none';
+  document.getElementById('apiStatus').textContent = '✦ KEY ACTIVE';
+  document.getElementById('apiStatus').className = 'ok';
+  chatAddAI('API key accepted. All wisdom pathways are fully operational across all modules.');
+}
+
+// ══════════════════════════════════════
+// PAGE 1: AI CHAT
+// ══════════════════════════════════════
+// Live stats
+setInterval(()=>{
+  const c=62+Math.floor(Math.random()*22), m=(3.6+Math.random()).toFixed(1);
+  document.getElementById('cpu').textContent=c+'%';
+  document.getElementById('mem').textContent=m+' GB';
+  document.getElementById('cpuBar').style.width=c+'%';
+  document.getElementById('memBar').style.width=(m/8*100)+'%';
+},3000);
+
+function chatAddAI(t){
+  const m=document.getElementById('chatMsgs');
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=`<div class="av av-ai">CHO<br>KMA</div><div class="mbody"><div class="mmeta ai">C.H.O.K.M.A. // RESPONSE</div><div class="bubble bai">${t.replace(/\n/g,'<br>')}</div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+  if(typeof speakModeOn!=='undefined' && speakModeOn && typeof speakText==='function') speakText(t);
+}
+function chatAddUser(t){
+  const m=document.getElementById('chatMsgs');
+  const d=document.createElement('div');d.className='msg user';
+  d.innerHTML=`<div class="av av-u">YOU</div><div class="mbody"><div class="mmeta um">OPERATOR</div><div class="bubble bu">${t}</div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function chatAddTyping(){
+  const m=document.getElementById('chatMsgs');
+  const d=document.createElement('div');d.className='msg';d.id='chatTyping';
+  d.innerHTML=`<div class="av av-ai">CHO<br>KMA</div><div class="mbody"><div class="bubble bai" style="padding:12px 16px"><div class="trow"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+// ── SHARED API HELPER ──
+async function callAPI(systemPrompt, userMsg, maxTokens){
+  maxTokens = maxTokens || 1000;
+  if(!apiKey){ throw new Error('No API key. Enter your Anthropic key at the top.'); }
+  let resp;
+  try {
+    resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: maxTokens,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: String(userMsg) }]
+      })
+    });
+  } catch(e) {
+    throw new Error('Network error — check your internet connection. (' + e.message + ')');
+  }
+  let data;
+  try { data = await resp.json(); } catch(e) { throw new Error('Server returned unreadable response (status ' + resp.status + ')'); }
+  if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  if(!resp.ok) throw new Error('HTTP ' + resp.status + ': ' + (data.error?.message || resp.statusText));
+  if(!data.content || !data.content[0] || !data.content[0].text) throw new Error('Empty response — please try again.');
+  return data;
+}
+
+async function chatSend(){
+  const inp=document.getElementById('chatInput');
+  const btn=document.getElementById('chatBtn');
+  const t=inp.value.trim(); if(!t) return;
+
+  // Check for voice navigation commands first
+  if(typeof handleVoiceCommand === 'function' && handleVoiceCommand(t)){
+    inp.value='';
+    return;
+  }
+
+  if(!apiKey){
+    chatAddAI('⚠ No API key detected. Please paste your Anthropic API key in the yellow bar at the top of the screen and tap ACTIVATE. You can get a key at console.anthropic.com');
+    return;
+  }
+  inp.value=''; btn.disabled=true; chatAddUser(t); chatAddTyping();
+  const t0=Date.now();
+  try{
+    const data = await callAPI(
+      'You are C.H.O.K.M.A. — an advanced AI assistant named after the Hebrew word for divine Wisdom (Chokmah). You are intelligent, calm, and helpful. Answer questions clearly and helpfully. You can discuss any topic, help with tasks, give advice, explain things, write content, and more. Be conversational and warm. If asked who you are, explain your name and purpose.',
+      t
+    );
+    document.getElementById('chatTyping')?.remove();
+    chatAddAI(data.content[0].text);
+    chatQc++;
+    document.getElementById('qc').textContent=chatQc;
+    document.getElementById('tok').textContent=data.usage?.output_tokens??'—';
+    document.getElementById('lat').textContent=((Date.now()-t0)/1000).toFixed(2)+'s';
+    if(typeof speakModeOn !== 'undefined' && speakModeOn && typeof speakText === 'function'){
+      speakText(data.content[0].text);
+    }
+  } catch(e) {
+    document.getElementById('chatTyping')?.remove();
+    chatAddAI('⚠ Error: ' + e.message + '\n\nTips: Make sure your API key starts with sk-ant- and you have credits at console.anthropic.com');
+  }
+  btn.disabled=false; inp.focus();
+}
+
+// ══════════════════════════════════════
+// PAGE 2: HUD
+// ══════════════════════════════════════
+// Waveform
+let hudWaveInited = false;
+function initHudWaveform(){
+  if(hudWaveInited) return;
+  hudWaveInited = true;
+  const wf=document.getElementById('hudWaveform');
+  for(let i=0;i<36;i++){const b=document.createElement('div');b.className='wbar';b.style.height=(Math.random()*22+4)+'px';b.style.opacity=(Math.random()*.5+.3);wf.appendChild(b);}
+  setInterval(()=>{wf.querySelectorAll('.wbar').forEach(b=>{b.style.height=(Math.random()*22+4)+'px';b.style.transition='height .15s ease';});},155);
+}
+
+// HUD stats
+setInterval(()=>{
+  const sl=78+Math.floor(Math.random()*18);
+  if(document.getElementById('hSlink')){
+    document.getElementById('hSlink').textContent=sl+'%';
+    document.getElementById('hSlinkBar').style.width=sl+'%';
+    document.getElementById('hHR').textContent=(68+Math.floor(Math.random()*16))+' BPM';
+  }
+},2500);
+
+// Daily verse
+const verses=[
+  {t:"For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.",r:"Jeremiah 29:11"},
+  {t:"I can do all things through Christ which strengtheneth me.",r:"Philippians 4:13"},
+  {t:"Trust in the LORD with all thine heart; and lean not unto thine own understanding.",r:"Proverbs 3:5"},
+  {t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},
+  {t:"But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles.",r:"Isaiah 40:31"},
+  {t:"The fear of the LORD is the beginning of wisdom: and knowledge of the holy is understanding.",r:"Proverbs 9:10"},
+  {t:"For God so loved the world, that he gave his only begotten Son.",r:"John 3:16"},
+  {t:"Be strong and courageous. Do not be afraid; for the LORD your God will be with you wherever you go.",r:"Joshua 1:9"},
+  {t:"No weapon that is formed against thee shall prosper.",r:"Isaiah 54:17"},
+  {t:"Walk in the Spirit, and ye shall not fulfil the lust of the flesh.",r:"Galatians 5:16"},
+  {t:"For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",r:"2 Timothy 1:7"},
+  {t:"Thy word is a lamp unto my feet, and a light unto my path.",r:"Psalm 119:105"},
+  {t:"Greater is he that is in you, than he that is in the world.",r:"1 John 4:4"},
+  {t:"And we know that all things work together for good to them that love God.",r:"Romans 8:28"},
+  {t:"The name of the LORD is a strong tower: the righteous runneth into it, and is safe.",r:"Proverbs 18:10"},
+  {t:"Delight thyself also in the LORD; and he shall give thee the desires of thine heart.",r:"Psalm 37:4"},
+  {t:"If any of you lack wisdom, let him ask of God, that giveth to all men liberally.",r:"James 1:5"},
+];
+(function loadVerse(){
+  const n=new Date();const d=Math.floor((n-new Date(n.getFullYear(),0,0))/86400000);
+  const v=verses[d%verses.length];
+  document.getElementById('hVtext').textContent='"'+v.t+'"';
+  document.getElementById('hVref').textContent='— '+v.r;
+  document.getElementById('hVdate').textContent=n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+})();
+
+// HUD commands
+const cmds={
+  'help':['Commands: status, verse, wisdom, flesh, pray, spirit, systems, clear'],
+  'status':['CHOKMA systems nominal.','Neural wisdom engine: ACTIVE','Scripture database: LOADED','Spirit monitor: ONLINE'],
+  'verse':[()=>{const n=new Date();const d=Math.floor((n-new Date(n.getFullYear(),0,0))/86400000);return '📖 '+verses[d%verses.length].r;},()=>{const n=new Date();const d=Math.floor((n-new Date(n.getFullYear(),0,0))/86400000);return '"'+verses[d%verses.length].t+'"';}],
+  'wisdom':['PROVERBS 4:7 — Wisdom is the principal thing; therefore get wisdom.','PROVERBS 9:10 — The fear of the LORD is the beginning of wisdom.','JAMES 1:5 — If any lack wisdom, ask of God.','PROVERBS 2:6 — The LORD giveth wisdom: out of his mouth cometh knowledge.'],
+  'flesh':['⚠ GALATIANS 5:19-21 — Works of the flesh:','Adultery, fornication, uncleanness, lasciviousness,','Idolatry, witchcraft, hatred, wrath, strife, murders, drunkenness.','✦ OVERRIDE: Walk in the Spirit — Galatians 5:16'],
+  'pray':['🙏 Matthew 6:9 — Our Father which art in heaven.','Philippians 4:6 — In every thing by prayer and supplication.','1 Thessalonians 5:17 — Pray without ceasing.'],
+  'spirit':['✦ FRUIT OF THE SPIRIT — Galatians 5:22-23:','Love, Joy, Peace, Longsuffering,','Gentleness, Goodness, Faith, Meekness, Temperance.'],
+  'systems':['CHOKMA uptime: active','Scripture nodes: 31,102 verses indexed','Wisdom engine: DIVINE','Spirit link: SECURE'],
+  'clear':['__clear__'],
+};
+function handleCmd(e){
+  if(e.key!=='Enter')return;
+  const inp=document.getElementById('cmdInput');
+  const cmd=inp.value.trim().toLowerCase();
+  inp.value='';if(!cmd)return;
+  const out=document.getElementById('cmdOut');out.style.display='block';
+  const lines=cmds[cmd]||[`"${cmd}" not recognized. Type "help".`];
+  if(lines[0]==='__clear__'){out.innerHTML='';out.style.display='none';return;}
+  const echo=document.createElement('div');echo.className='col';echo.textContent='> '+cmd;out.appendChild(echo);
+  let spokenLines=[];
+  lines.forEach((l,i)=>setTimeout(()=>{
+    const d=document.createElement('div');d.className='col r';
+    const txt=typeof l==='function'?l():l;
+    d.textContent=txt;
+    out.appendChild(d);out.scrollTop=out.scrollHeight;
+    spokenLines.push(txt);
+    if(i===lines.length-1 && speakModeOn && typeof speakText==='function'){
+      speakText(spokenLines.join('. '));
+    }
+  },(i+1)*110));
+}
+document.getElementById('page-hud').addEventListener('click',()=>{
+  if(document.getElementById('page-hud').classList.contains('on'))
+    document.getElementById('cmdInput').focus();
+});
+
+// ══════════════════════════════════════
+// PAGE 3: BRAINSTORM
+// ══════════════════════════════════════
+const bsModes={explore:'MODE: EXPLORE TRENDS',build:'MODE: BUILD PROJECT',rebuild:'MODE: REBUILD / IMPROVE',invent:'MODE: INVENT NEW'};
+const bsSysPrompts={
+  explore:`You are C.H.O.K.M.A., an AI invention assistant named after the Hebrew word for divine Wisdom. Help users discover the latest technologies, inventions, and breakthroughs. Be specific and exciting.`,
+  build:`You are C.H.O.K.M.A. In BUILD mode, help users create projects step by step — clarify the idea, list materials, create a phased plan.`,
+  rebuild:`You are C.H.O.K.M.A. In REBUILD mode, help users improve or reimagine existing things using new technology. Think boldly.`,
+  invent:`You are C.H.O.K.M.A. In INVENT mode, take raw ideas and shape them into real inventions with market value and a prototype path.`,
+};
+const bsQps={
+  explore:['Newest inventions right now?','What tech is changing the world?','Show me emerging technologies','What comes after AI?'],
+  build:['Help me build a smart device','Walk me through a prototype','I want to build an app','What tools do I need?'],
+  rebuild:['Reimagine a household item','Modernize an old invention','Apply AI to something lacking it','How to redesign the bicycle?'],
+  invent:['I have a rough idea — develop it','What daily problems need solving?','Combine two technologies','Invent for elderly people'],
+};
+function bsSetMode(m,btn){
+  bsMode=m;document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  if(bsModes[m]) document.getElementById('bsWsMode').textContent=bsModes[m];
+  if(bsQps[m]){
+    document.getElementById('bsQpRow').innerHTML=bsQps[m].map(p=>`<button class="qp" onclick="bsUp(this)">${p}</button>`).join('');
+  }
+  const msgs={explore:'EXPLORE MODE — Ask about any technology or trend.',build:'BUILD MODE — Tell me what you want to create.',rebuild:'REBUILD MODE — Show me something to improve.',invent:'INVENT MODE — Give me your idea, however rough.'};
+  bsAddAI(msgs[m]);
+}
+function bsSwitchTab(name, tabEl){
+  document.querySelectorAll('.bstab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.bs-page').forEach(p=>p.classList.remove('on'));
+  tabEl.classList.add('on');
+  document.getElementById('bs-page-'+name).classList.add('on');
+  if(name==='model') setTimeout(()=>{initThree();resizeRenderer();},80);
+  if(name==='poke') pokeLoadState();
+}
+function bsQt(trend){document.getElementById('bsInput').value=`Tell me about the latest in ${trend} and how I could build or invent something in this space.`;document.getElementById('bsInput').focus();}
+function bsUp(btn){document.getElementById('bsInput').value=btn.textContent;document.getElementById('bsInput').focus();}
+function bsAddAI(t){
+  bsLastAI=t;const m=document.getElementById('bsMsgs');
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=`<div class="av av-ai">CHO<br>KMA</div><div class="mbody"><div class="mmeta ai">C.H.O.K.M.A.</div><div class="bubble bai">${t.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>')}</div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+  if(speakModeOn && typeof speakText==='function') speakText(t);
+}
+function bsAddUser(t){
+  const m=document.getElementById('bsMsgs');const d=document.createElement('div');d.className='msg user';
+  d.innerHTML=`<div class="av av-u">YOU</div><div class="mbody"><div class="mmeta um">OPERATOR</div><div class="bubble bu">${t}</div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function bsAddTyping(){
+  const m=document.getElementById('bsMsgs');const d=document.createElement('div');d.className='msg';d.id='bsTyping';
+  d.innerHTML=`<div class="av av-ai">CHO<br>KMA</div><div class="mbody"><div class="bubble bai" style="padding:12px 16px"><div class="trow"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+async function bsSend(){
+  const inp=document.getElementById('bsInput'),btn=document.getElementById('bsBtn');
+  const t=inp.value.trim();if(!t)return;
+  if(!apiKey){bsAddAI('Please enter your Anthropic API key to activate the Brainstorm Engine.');return;}
+  inp.value='';btn.disabled=true;bsAddUser(t);bsAddTyping();
+  try{
+    const data = await callAPI(bsSysPrompts[bsMode]||bsSysPrompts.explore, t);
+    document.getElementById('bsTyping')?.remove();
+    bsAddAI(data.content[0].text);
+  }catch(e){
+    document.getElementById('bsTyping')?.remove();
+    bsAddAI('⚠ '+e.message);
+  }
+  btn.disabled=false;inp.focus();
+}
+function bsSaveNote(){
+  if(!bsLastAI)return;bsNoteN++;
+  document.getElementById('noNotes')?.remove();
+  const area=document.getElementById('bsNotes');
+  const card=document.createElement('div');card.className='note';
+  card.innerHTML=`<div class="note-ttl">💡 IDEA #${bsNoteN}</div><div class="note-body">${bsLastAI.replace(/<[^>]+>/g,'').substring(0,110)}...</div>`;
+  area.appendChild(card);area.scrollTop=area.scrollHeight;
+}
+
+// ══════════════════════════════════════
+// 3D ENGINE
+// ══════════════════════════════════════
+let threeInited = false;
+function initThree(){
+  if(threeInited) return;
+  threeInited = true;
+  const canvas=document.getElementById('canvas3d');
+  threeScene=new THREE.Scene();
+  threeScene.background=new THREE.Color(0x080500);
+  threeScene.fog=new THREE.FogExp2(0x080500,0.032);
+  threeCamera=new THREE.PerspectiveCamera(45,canvas.clientWidth/Math.max(canvas.clientHeight,100),0.1,1000);
+  threeCamera.position.set(0,3,8);
+  threeRenderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  resizeRenderer();
+  const amb=new THREE.AmbientLight(0xffd080,.4);threeScene.add(amb);
+  const dl=new THREE.DirectionalLight(0xff9900,1.2);dl.position.set(5,10,7);threeScene.add(dl);
+  const dl2=new THREE.DirectionalLight(0xffcc00,.5);dl2.position.set(-5,3,-5);threeScene.add(dl2);
+  const grid=new THREE.GridHelper(20,20,0xff9900,0x221500);grid.material.opacity=.28;grid.material.transparent=true;threeScene.add(grid);
+  modelGroup=new THREE.Group();threeScene.add(modelGroup);
+  buildDefaultModel();
+  canvas.addEventListener('mousedown',e=>{isDragging=true;prevMouse={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener('mousemove',e=>{if(!isDragging)return;const dx=e.clientX-prevMouse.x,dy=e.clientY-prevMouse.y;rotY+=dx*.008;rotX+=dy*.008;rotX=Math.max(-1.2,Math.min(1.2,rotX));prevMouse={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener('mouseup',()=>isDragging=false);
+  canvas.addEventListener('mouseleave',()=>isDragging=false);
+  canvas.addEventListener('wheel',e=>{threeCamera.position.z=Math.max(2,Math.min(20,threeCamera.position.z+e.deltaY*.01));});
+  let lt=null;
+  canvas.addEventListener('touchstart',e=>{lt={x:e.touches[0].clientX,y:e.touches[0].clientY};});
+  canvas.addEventListener('touchmove',e=>{if(!lt)return;const dx=e.touches[0].clientX-lt.x,dy=e.touches[0].clientY-lt.y;rotY+=dx*.008;rotX+=dy*.008;lt={x:e.touches[0].clientX,y:e.touches[0].clientY};e.preventDefault();},{passive:false});
+  canvas.addEventListener('touchend',()=>lt=null);
+  animateThree();
+}
+function resizeRenderer(){
+  const canvas=document.getElementById('canvas3d');
+  if(!threeRenderer||!canvas)return;
+  const wrap=canvas.parentElement;
+  const w=wrap.clientWidth,h=Math.max(wrap.clientHeight-50,100);
+  canvas.style.height=h+'px';
+  threeRenderer.setSize(w,h);
+  threeCamera.aspect=w/h;threeCamera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resizeRenderer);
+function animateThree(){
+  requestAnimationFrame(animateThree);
+  if(modelGroup){modelGroup.rotation.x=rotX;modelGroup.rotation.y+=.003+rotY*.001;rotY*=.95;}
+  if(threeRenderer) threeRenderer.render(threeScene,threeCamera);
+}
+function buildDefaultModel(){
+  while(modelGroup.children.length)modelGroup.remove(modelGroup.children[0]);
+  const mat=new THREE.MeshPhongMaterial({color:0xff9900,wireframe:wireMode,transparent:true,opacity:.85});
+  const edgeMat=new THREE.LineBasicMaterial({color:0xffcc00,transparent:true,opacity:.5});
+  const geo=new THREE.BoxGeometry(1.5,1.5,1.5);
+  modelGroup.add(new THREE.Mesh(geo,mat));
+  modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),edgeMat));
+  document.getElementById('modelTitle').textContent='// 3D MODEL VIEWER — ENTER INVENTION BELOW';
+}
+const pColors=[0xff9900,0xffcc00,0x90ee40,0xff6600,0xffd700,0x88ff44,0xff8800,0xffaa00];
+function buildModelFromParts(parts,name){
+  while(modelGroup.children.length)modelGroup.remove(modelGroup.children[0]);
+  const shapes=['box','sphere','cylinder','cone','torus','box','sphere','cylinder'];
+  parts.forEach((p,i)=>{
+    const color=pColors[i%pColors.length];
+    const mat=new THREE.MeshPhongMaterial({color,wireframe:wireMode,transparent:true,opacity:.82,shininess:80});
+    const edgeMat=new THREE.LineBasicMaterial({color:0xffcc00,transparent:true,opacity:.35});
+    let geo;
+    const s=shapes[i%shapes.length];
+    if(s==='sphere') geo=new THREE.SphereGeometry(.5+Math.random()*.3,16,16);
+    else if(s==='cylinder') geo=new THREE.CylinderGeometry(.3,.4,.8+Math.random()*.4,12);
+    else if(s==='cone') geo=new THREE.ConeGeometry(.4,.9+Math.random()*.3,10);
+    else if(s==='torus') geo=new THREE.TorusGeometry(.4,.12,8,20);
+    else geo=new THREE.BoxGeometry(.5+Math.random()*.5,.4+Math.random()*.6,.5+Math.random()*.5);
+    const mesh=new THREE.Mesh(geo,mat);
+    const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),edgeMat);
+    const angle=(i/parts.length)*Math.PI*2,r=1.2+(i%3)*.5;
+    const bx=Math.cos(angle)*r,by=(i%3-1)*.7,bz=Math.sin(angle)*r;
+    mesh.position.set(bx,by,bz);edges.position.copy(mesh.position);
+    mesh.userData={basePos:mesh.position.clone()};edges.userData={basePos:edges.position.clone()};
+    modelGroup.add(mesh);modelGroup.add(edges);
+  });
+  document.getElementById('modelTitle').textContent='// 3D — '+name.toUpperCase();
+}
+function toggleWire(){wireMode=!wireMode;document.getElementById('btnWire').classList.toggle('on',wireMode);modelGroup.traverse(c=>{if(c.isMesh&&c.material)c.material.wireframe=wireMode;});}
+function toggleExplode(){explodeMode=!explodeMode;document.getElementById('btnExplode').classList.toggle('on',explodeMode);modelGroup.traverse(c=>{if(c.isMesh&&c.userData.basePos){const bp=c.userData.basePos;c.position.set(explodeMode?bp.x*2.5:bp.x,explodeMode?bp.y*2.5:bp.y,explodeMode?bp.z*2.5:bp.z);}});}
+function resetCam(){rotX=.3;rotY=.5;threeCamera.position.set(0,3,8);}
+async function generateModel(){
+  const inp=document.getElementById('modelInput').value.trim();
+  if(!inp)return;
+  if(!apiKey){alert('Please enter your API key first.');return;}
+  document.getElementById('loadingOv').style.display='flex';
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('ltxt').textContent='GENERATING PARTS LIST...';
+  try{
+    const data = await callAPI(
+      `You are an expert engineer. Respond ONLY with valid JSON — no markdown, no backticks, no explanation. Structure: {"name":"Short name","parts":[{"name":"Part name","description":"One sentence what it does","quantity":1,"unit":"pcs","low_price":5.00,"high_price":15.00}],"total_low":45.00,"total_high":120.00,"currency":"USD"} Include 6-10 realistic parts with real market prices. total_low/total_high = sum of all parts times quantity.`,
+      'Parts list for: '+inp,
+      1200
+    );
+    let text=data.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(text);
+    document.getElementById('ltxt').textContent='BUILDING 3D MODEL...';
+    setTimeout(()=>{
+      buildModelFromParts(parsed.parts,parsed.name||inp);
+      renderParts(parsed);
+      document.getElementById('loadingOv').style.display='none';
+      document.getElementById('genBtn').disabled=false;
+    },500);
+  }catch(e){
+    document.getElementById('loadingOv').style.display='none';
+    document.getElementById('genBtn').disabled=false;
+    document.getElementById('partsList').innerHTML=`<div style="color:var(--red);font-size:.62rem;padding:12px;font-family:'Share Tech Mono',monospace">⚠ ${e.message}</div>`;
+  }
+}
+function renderParts(data){
+  const list=document.getElementById('partsList');list.innerHTML='';
+  document.getElementById('ppSub').textContent=data.name||'Generated';
+  data.parts.forEach((p,i)=>{
+    const card=document.createElement('div');card.className='pcard';
+    card.style.setProperty('--pc',`#${pColors[i%pColors.length].toString(16).padStart(6,'0')}`);
+    card.style.borderLeftColor=`#${pColors[i%pColors.length].toString(16).padStart(6,'0')}`;
+    card.innerHTML=`<div class="pname">${p.name}</div><div class="pdesc">${p.description}</div><div class="pfooter"><span class="pqty">QTY: ${p.quantity} ${p.unit}</span><span class="pprice">$${p.low_price}–$${p.high_price}</span></div>`;
+    list.appendChild(card);
+  });
+  document.getElementById('budgetBar').style.display='block';
+  document.getElementById('bParts').textContent=data.parts.length+' parts';
+  document.getElementById('bLow').textContent='$'+data.total_low.toFixed(2);
+  document.getElementById('bHigh').textContent='$'+data.total_high.toFixed(2);
+  document.getElementById('bTotal').textContent='~$'+((data.total_low+data.total_high)/2).toFixed(2);
+}
+// ══════════════════════════════════════
+// CODING LAB
+// ══════════════════════════════════════
+const langHints = {
+  javascript: 'console.log("hello world")',
+  python: 'print("hello world")',
+  html: '<h1>Hello World</h1>',
+  css: 'body { background: #000; }',
+  java: 'System.out.println("Hello");',
+  cpp: 'cout << "Hello" << endl;'
+};
+function updateLangHint(){
+  const lang = document.getElementById('codeLang').value;
+  document.getElementById('langHint').textContent = langHints[lang] || '';
+}
+function updateLineNums(){
+  const ta = document.getElementById('codeEditor');
+  const lines = ta.value.split('\n').length;
+  document.getElementById('lineNums').textContent = Array.from({length:lines},(_,i)=>i+1).join('\n');
+}
+function handleTab(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const ta=document.getElementById('codeEditor');
+    const s=ta.selectionStart,end=ta.selectionEnd;
+    ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);
+    ta.selectionStart=ta.selectionEnd=s+2;
+    updateLineNums();
+  }
+}
+function clearCode(){
+  document.getElementById('codeEditor').value='';
+  document.getElementById('codeOutput').textContent='Waiting for code to run…';
+  document.getElementById('codeOutput').style.color='#a0f0a0';
+  document.getElementById('runStatus').textContent='READY';
+  document.getElementById('runStatus').className='run-status';
+  updateLineNums();
+}
+function runCode(){
+  const code = document.getElementById('codeEditor').value.trim();
+  const lang = document.getElementById('codeLang').value;
+  const out = document.getElementById('codeOutput');
+  const status = document.getElementById('runStatus');
+  if(!code){out.textContent='No code to run.';return;}
+  if(lang !== 'javascript'){
+    out.innerHTML=`<span class="err-line">⚠ Live execution only works for JavaScript in the browser.\nFor ${lang}, use the AI REVIEW button to analyze your code and get feedback.</span>`;
+    status.textContent='JS ONLY';status.className='run-status err';return;
+  }
+  status.textContent='RUNNING…';status.className='run-status run';
+  out.textContent='';out.style.color='#a0f0a0';
+  const logs=[];
+  const origLog=console.log,origErr=console.error,origWarn=console.warn;
+  console.log=(...a)=>{logs.push(a.map(x=>typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' '));origLog(...a);};
+  console.error=(...a)=>{logs.push('ERROR: '+a.join(' '));origErr(...a);};
+  console.warn=(...a)=>{logs.push('WARN: '+a.join(' '));origWarn(...a);};
+  try{
+    const result = new Function(code)();
+    console.log=origLog;console.error=origErr;console.warn=origWarn;
+    if(logs.length) out.textContent=logs.join('\n');
+    else if(result!==undefined) out.textContent=String(result);
+    else out.textContent='✓ Code ran successfully (no output)';
+    status.textContent='OK';status.className='run-status ok';
+  }catch(e){
+    console.log=origLog;console.error=origErr;console.warn=origWarn;
+    out.innerHTML=`<span class="err-line">✗ ${e.name}: ${e.message}</span>`;
+    if(logs.length) out.innerHTML+='\n'+logs.join('\n');
+    status.textContent='ERROR';status.className='run-status err';
+  }
+}
+async function analyzeCode(){
+  const code=document.getElementById('codeEditor').value.trim();
+  const lang=document.getElementById('codeLang').value;
+  if(!code){alert('Write some code first!');return;}
+  if(!apiKey){addCodeTip('Enter your API key to use AI Review.','ACTIVATE KEY FIRST',false);return;}
+  addCodeTip('Analyzing your code…','CHOKMA IS THINKING...',true);
+  try{
+    const data = await callAPI(
+      'You are CHOKMA, an expert code mentor and teacher. When given code: 1) Identify what it does, 2) Find bugs or issues, 3) Suggest improvements, 4) Teach the right way to write it. Be concise, encouraging, and educational.',
+      'Review this '+lang+' code and teach me how to improve it:\n\n```'+lang+'\n'+code+'\n```',
+      800
+    );
+    const tips=document.getElementById('ctpTips');
+    tips.querySelector('.loading-tip')?.remove();
+    const card=document.createElement('div');card.className='tip-card ai-tip';
+    card.innerHTML=`<div class="tip-icon">🤖</div><div class="tip-title">AI REVIEW — ${lang.toUpperCase()}</div><div class="tip-body">${data.content[0].text.replace(/\n/g,'<br>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div>`;
+    tips.insertBefore(card,tips.firstChild);tips.scrollTop=0;
+    document.getElementById('ctpSub').textContent='AI review complete';
+  }catch(e){
+    document.getElementById('ctpTips').querySelector('.loading-tip')?.remove();
+    addCodeTip('⚠ '+e.message,'ERROR',false);
+  }
+}
+async function askCodeAI(){
+  const q=document.getElementById('codeAskInput').value.trim();if(!q)return;
+  if(!apiKey){addCodeTip('Enter your API key first.','NO KEY',false);return;}
+  document.getElementById('codeAskInput').value='';
+  document.getElementById('ctpSub').textContent='Thinking…';
+  addCodeTip('Thinking…','CHOKMA…',true);
+  try{
+    const code=document.getElementById('codeEditor').value;
+    const lang=document.getElementById('codeLang').value;
+    const context=code?'\n\nUser has this '+lang+' code:\n```'+lang+'\n'+code+'\n```':'';
+    const data = await callAPI(
+      'You are CHOKMA, an expert code teacher. Answer coding questions clearly and concisely. Provide examples when helpful. Teach the right approach.',
+      q+context,
+      600
+    );
+    const tips=document.getElementById('ctpTips');
+    tips.querySelector('.loading-tip')?.remove();
+    const card=document.createElement('div');card.className='tip-card ai-tip';
+    card.innerHTML=`<div class="tip-icon">💬</div><div class="tip-title">Q: ${q.substring(0,40)}${q.length>40?'…':''}</div><div class="tip-body">${data.content[0].text.replace(/\n/g,'<br>').replace(/`([^`]+)`/g,'<code>$1</code>')}</div>`;
+    tips.insertBefore(card,tips.firstChild);tips.scrollTop=0;
+    document.getElementById('ctpSub').textContent='Answer ready';
+  }catch(e){
+    document.getElementById('ctpTips').querySelector('.loading-tip')?.remove();
+    addCodeTip('⚠ '+e.message,'ERROR',false);
+  }
+}
+function addCodeTip(body, title, loading){
+  const tips=document.getElementById('ctpTips');
+  const card=document.createElement('div');
+  card.className='tip-card ai-tip'+(loading?' loading-tip':'');
+  card.innerHTML=`<div class="tip-icon">${loading?'⏳':'💡'}</div><div class="tip-title">${title}</div><div class="tip-body">${body}</div>`;
+  tips.insertBefore(card,tips.firstChild);tips.scrollTop=0;
+}
+
+// ══════════════════════════════════════
+// POKÉMON BREAK TIMER
+// ══════════════════════════════════════
+const POKE_DAILY_SECS = 90 * 60; // 1h 30min
+let pokeSecsLeft = POKE_DAILY_SECS;
+let pokeSecsUsed = 0;
+let pokeSessions = 0;
+let pokeStreak = 0;
+let pokeInterval = null;
+let pokeRunning = false;
+let pokeLastDate = '';
+
+function pokeLoadState(){
+  const today = new Date().toDateString();
+  const saved = localStorage.getItem('chokma_poke_'+today);
+  if(saved){
+    const s=JSON.parse(saved);
+    pokeSecsUsed=s.used||0;pokeSessions=s.sessions||0;
+    pokeSecsLeft=Math.max(0,POKE_DAILY_SECS-pokeSecsUsed);
+  } else {
+    pokeSecsLeft=POKE_DAILY_SECS;pokeSecsUsed=0;pokeSessions=0;
+  }
+  const streak=localStorage.getItem('chokma_poke_streak');
+  if(streak) pokeStreak=parseInt(streak)||0;
+  pokeSaveState();pokeUpdateUI();
+}
+function pokeSaveState(){
+  const today=new Date().toDateString();
+  localStorage.setItem('chokma_poke_'+today,JSON.stringify({used:pokeSecsUsed,sessions:pokeSessions}));
+}
+function pokeFormatTime(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+function pokeUpdateUI(){
+  const timerEl=document.getElementById('pokeTimer');
+  timerEl.textContent=pokeFormatTime(pokeSecsLeft);
+  const pct=(pokeSecsLeft/POKE_DAILY_SECS)*100;
+  document.getElementById('pokeTimerBar').style.width=pct+'%';
+  if(pct>50){timerEl.className='poke-timer';document.getElementById('pokeTimerBar').style.background='linear-gradient(90deg,var(--ndim),var(--green))';}
+  else if(pct>20){timerEl.className='poke-timer warning';document.getElementById('pokeTimerBar').style.background='linear-gradient(90deg,var(--odim),var(--orange))';}
+  else{timerEl.className='poke-timer danger';document.getElementById('pokeTimerBar').style.background='linear-gradient(90deg,rgba(255,68,68,.3),var(--red))';}
+  document.getElementById('pokeTimerSub').textContent=pokeFormatTime(pokeSecsLeft)+' remaining today';
+  document.getElementById('pokeSessions').textContent=pokeSessions;
+  document.getElementById('pokeUsed').textContent=pokeFormatTime(pokeSecsUsed);
+  document.getElementById('pokeRemain').textContent=pokeFormatTime(pokeSecsLeft);
+  document.getElementById('pokeStreak').textContent=pokeStreak+' days';
+  document.getElementById('pokeStatus').textContent=pokeRunning?'▶ PLAYING':(pokeSecsLeft<=0?'LIMIT REACHED':'IDLE');
+}
+function pokeStart(){
+  if(pokeSecsLeft<=0){alert('Daily limit reached! Come back tomorrow.');return;}
+  if(pokeRunning) return;
+  pokeRunning=true;pokeSessions++;
+  // Load game
+  const frame=document.getElementById('pokeFrame');
+  const placeholder=document.getElementById('pokePlaceholder');
+  frame.src='https://www.pokemonfirered.online/';
+  frame.style.display='block';
+  placeholder.style.display='none';
+  document.getElementById('pokeStartMsg').textContent='Game loading…';
+  document.getElementById('pokeStatus').textContent='▶ PLAYING';
+  pokeInterval=setInterval(()=>{
+    pokeSecsLeft--;pokeSecsUsed++;
+    pokeSaveState();pokeUpdateUI();
+    if(pokeSecsLeft<=0){pokePause();document.getElementById('pokeStatus').textContent='⛔ LIMIT REACHED';alert('Your 1h 30min daily Pokémon break is up! Time to get back to work. "Whatever you do, work at it with all your heart." — Colossians 3:23');}
+  },1000);
+  pokeSaveState();pokeUpdateUI();
+}
+function pokePause(){
+  if(!pokeRunning) return;
+  pokeRunning=false;clearInterval(pokeInterval);pokeInterval=null;
+  document.getElementById('pokeStatus').textContent='⏸ PAUSED';
+  pokeSaveState();
+}
+function pokeReset(){
+  if(!confirm('Reset today\'s timer? This cannot be undone.')) return;
+  pokePause();
+  const today=new Date().toDateString();
+  localStorage.removeItem('chokma_poke_'+today);
+  pokeSecsLeft=POKE_DAILY_SECS;pokeSecsUsed=0;pokeSessions=0;
+  const frame=document.getElementById('pokeFrame');
+  frame.src='';frame.style.display='none';
+  document.getElementById('pokePlaceholder').style.display='flex';
+  pokeSaveState();pokeUpdateUI();
+}
+// Load poke state on init
+pokeLoadState();
+
+// ══════════════════════════════════════
+// VOICE COMMANDS — SPEECH-TO-TEXT & TEXT-TO-SPEECH
+// ══════════════════════════════════════
+let voiceRecognition = null;
+let isListening = false;
+let speakModeOn = false;
+
+function initVoiceRecognition(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const rec = new SR();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+  return rec;
+}
+
+function toggleVoiceInput(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    chatAddAI('⚠ Voice input is not supported in this browser. Please use Chrome or Safari on a phone or computer.');
+    return;
+  }
+  if(isListening){
+    if(voiceRecognition) voiceRecognition.stop();
+    return;
+  }
+  voiceRecognition = initVoiceRecognition();
+  const micBtn = document.getElementById('chatMicBtn');
+  const statusRow = document.getElementById('voiceStatusRow');
+  const statusText = document.getElementById('voiceStatusText');
+  const input = document.getElementById('chatInput');
+
+  voiceRecognition.onstart = () => {
+    isListening = true;
+    micBtn.classList.add('listening');
+    statusRow.style.display = 'flex';
+    statusText.textContent = 'LISTENING...';
+  };
+
+  voiceRecognition.onresult = (event) => {
+    let transcript = '';
+    for(let i=0; i<event.results.length; i++){
+      transcript += event.results[i][0].transcript;
+    }
+    input.value = transcript;
+    statusText.textContent = 'HEARD: ' + transcript.substring(0,40);
+  };
+
+  voiceRecognition.onerror = (event) => {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    statusRow.style.display = 'none';
+    if(event.error === 'not-allowed'){
+      chatAddAI('⚠ Microphone access denied. Please allow microphone access in your browser settings to use voice commands.');
+    } else if(event.error !== 'no-speech'){
+      chatAddAI('⚠ Voice recognition error: ' + event.error);
+    }
+  };
+
+  voiceRecognition.onend = () => {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    statusRow.style.display = 'none';
+    if(input.value.trim()) chatSend();
+  };
+
+  voiceRecognition.start();
+}
+
+function toggleSpeakMode(){
+  speakModeOn = !speakModeOn;
+  // Update chat tab button
+  const btn = document.getElementById('chatSpeakBtn');
+  if(btn){
+    btn.classList.toggle('active', speakModeOn);
+    btn.title = speakModeOn ? 'Voice ON — ElevenLabs AI Voice active' : 'Voice OFF — click to enable';
+  }
+  // Update global nav button
+  const gbtn = document.getElementById('globalSpeakBtn');
+  if(gbtn){
+    gbtn.style.borderColor = speakModeOn ? 'var(--green)' : 'var(--border)';
+    gbtn.style.color = speakModeOn ? 'var(--green)' : 'var(--orange)';
+    gbtn.style.background = speakModeOn ? 'rgba(144,238,64,.15)' : 'rgba(255,153,0,.08)';
+    gbtn.title = speakModeOn ? 'CHOKMA VOICE ON — click to mute' : 'CHOKMA VOICE OFF — click to activate';
+  }
+  if(speakModeOn) speakText('CHOKMA voice system activated.');
+  else window.speechSynthesis?.cancel();
+}
+
+function speakText(text){
+  const ELEVEN_KEY = 'sk_5a1108de1d66b3c3715abdbe27501323731a9c4d7b2d7732';
+  const ELEVEN_VOICE = 'mhvjcUuBiHd4TgRIaZOw';
+  const clean = text.replace(/<[^>]+>/g,'').replace(/\*\*/g,'').substring(0,1000);
+  if(!clean.trim()) return;
+
+  fetch('https://api.elevenlabs.io/v1/text-to-speech/' + ELEVEN_VOICE, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': ELEVEN_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'audio/mpeg'
+    },
+    body: JSON.stringify({
+      text: clean,
+      model_id: 'eleven_monolingual_v1',
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.85,
+        style: 0.3,
+        use_speaker_boost: true
+      }
+    })
+  })
+  .then(r => {
+    if(!r.ok) throw new Error('ElevenLabs error: ' + r.status);
+    return r.blob();
+  })
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+    audio.onended = () => URL.revokeObjectURL(url);
+  })
+  .catch(e => {
+    // Fallback to browser voice if ElevenLabs fails
+    console.warn('ElevenLabs fallback:', e.message);
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.rate = 1.0; utter.pitch = 0.85; utter.volume = 1.0;
+    window.speechSynthesis.speak(utter);
+  });
+}
+
+function handleVoiceCommand(text){
+  const lower = text.toLowerCase().trim();
+  if(lower.includes('open hud') || lower.includes('show hud')){document.querySelectorAll('.mtab')[1]?.click();return true;}
+  if(lower.includes('open brainstorm')){document.querySelectorAll('.mtab')[3]?.click();return true;}
+  if(lower.includes('open ideas') || lower.includes('record idea')){document.querySelectorAll('.mtab')[2]?.click();return true;}
+  if(lower.includes('open chat')){document.querySelectorAll('.mtab')[0]?.click();return true;}
+  return false;
+}
+
+// ══════════════════════════════════════
+// IDEAS — CHOKMA VOICE RECORDER
+// ══════════════════════════════════════
+let ideasMediaRecorder = null;
+let ideasAudioChunks = [];
+let ideasStream = null;
+let ideasRecInterval = null;
+let ideasRecSeconds = 0;
+let ideasPaused = false;
+let ideasAnalyser = null;
+let ideasAudioCtx = null;
+let ideasAnimFrame = null;
+let ideasCurrentBlob = null;
+let ideasIdeas = [];
+let ideasCurrentlyPlaying = null;
+
+function ideasLoadFromStorage(){
+  try{
+    const saved = localStorage.getItem('chokma_ideas');
+    if(saved) ideasIdeas = JSON.parse(saved);
+  }catch(e){ ideasIdeas=[]; }
+  ideasRenderArchive();
+}
+
+function ideasSaveToStorage(){
+  // Store metadata only (not audio blobs — those live in memory this session)
+  const meta = ideasIdeas.map(i=>({id:i.id,title:i.title,duration:i.duration,date:i.date,hasAudio:!!i.audioUrl}));
+  try{ localStorage.setItem('chokma_ideas_meta', JSON.stringify(meta)); }catch(e){}
+}
+
+function ideasFormatTime(s){
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+function ideasSetVizState(state){
+  const icon=document.getElementById('vizIcon');
+  const label=document.getElementById('vizLabel');
+  const rings=document.querySelectorAll('.viz-ring');
+  const recStatus=document.getElementById('gideonRecStatus');
+  const micStatus=document.getElementById('gideonMicStatus');
+  if(state==='idle'){
+    icon.textContent='◎';icon.className='viz-icon';label.textContent='AWAITING INPUT';
+    rings.forEach(r=>r.classList.remove('active'));
+    recStatus.textContent='◌ STANDBY';recStatus.className='gideon-chip';
+    document.getElementById('recDot').className='rec-dot';
+    document.getElementById('recLabel').textContent='PRESS RECORD TO BEGIN';
+  } else if(state==='recording'){
+    icon.textContent='⬤';icon.className='viz-icon recording';label.textContent='RECORDING IDEA';
+    rings.forEach(r=>r.classList.add('active'));
+    recStatus.textContent='● RECORDING';recStatus.className='gideon-chip rec';
+    micStatus.textContent='● MIC: LIVE';micStatus.className='gideon-chip live';
+    document.getElementById('recDot').className='rec-dot live';
+    document.getElementById('recLabel').textContent='SPEAKING TO CHOKMA...';
+    document.getElementById('btnRecord').classList.add('recording');
+  } else if(state==='paused'){
+    icon.textContent='⏸';icon.className='viz-icon';label.textContent='PAUSED';
+    rings.forEach(r=>r.classList.remove('active'));
+    recStatus.textContent='⏸ PAUSED';recStatus.className='gideon-chip';
+    document.getElementById('recDot').className='rec-dot';
+    document.getElementById('recLabel').textContent='RECORDING PAUSED';
+  } else if(state==='done'){
+    icon.textContent='✓';icon.className='viz-icon';label.textContent='IDEA CAPTURED';
+    rings.forEach(r=>r.classList.remove('active'));
+    recStatus.textContent='✓ SAVED';recStatus.className='gideon-chip live';
+    document.getElementById('recDot').className='rec-dot done';
+    document.getElementById('recLabel').textContent='IDEA ARCHIVED';
+    micStatus.textContent='● MIC: OFFLINE';micStatus.className='gideon-chip';
+    document.getElementById('btnRecord').classList.remove('recording');
+  }
+}
+
+function ideasDrawWave(){
+  if(!ideasAnalyser) return;
+  const canvas=document.getElementById('waveCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  const bufLen=ideasAnalyser.frequencyBinCount;
+  const dataArr=new Uint8Array(bufLen);
+  function draw(){
+    ideasAnimFrame=requestAnimationFrame(draw);
+    ideasAnalyser.getByteTimeDomainData(dataArr);
+    ctx.clearRect(0,0,W,H);
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(255,153,0,0.6)';
+    ctx.lineWidth=1.5;
+    const cx=W/2,cy=H/2,r=90;
+    for(let i=0;i<bufLen;i++){
+      const v=(dataArr[i]/128)-1;
+      const angle=(i/bufLen)*Math.PI*2;
+      const dist=r+v*28;
+      const x=cx+Math.cos(angle)*dist;
+      const y=cy+Math.sin(angle)*dist;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();ctx.stroke();
+  }
+  draw();
+}
+
+function ideasStopWave(){
+  if(ideasAnimFrame){cancelAnimationFrame(ideasAnimFrame);ideasAnimFrame=null;}
+  const canvas=document.getElementById('waveCanvas');
+  if(canvas){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}
+}
+
+async function ideasRecord(){
+  if(ideasPaused && ideasMediaRecorder){
+    // Resume from pause
+    ideasMediaRecorder.resume();
+    ideasPaused=false;
+    ideasRecInterval=setInterval(()=>{ideasRecSeconds++;document.getElementById('recTime').textContent=ideasFormatTime(ideasRecSeconds);},1000);
+    ideasSetVizState('recording');
+    document.getElementById('btnPause').querySelector('.gbtn-icon').textContent='⏸';
+    document.getElementById('btnPause').querySelector('.gbtn-label').textContent='PAUSE';
+    return;
+  }
+  try{
+    ideasStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    document.getElementById('gideonMicStatus').textContent='● MIC: LIVE';
+    document.getElementById('gideonMicStatus').className='gideon-chip live';
+    // Set up audio analyser
+    ideasAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const src=ideasAudioCtx.createMediaStreamSource(ideasStream);
+    ideasAnalyser=ideasAudioCtx.createAnalyser();
+    ideasAnalyser.fftSize=256;
+    src.connect(ideasAnalyser);
+    // Resize canvas
+    const canvas=document.getElementById('waveCanvas');
+    canvas.width=260;canvas.height=260;
+    ideasDrawWave();
+    // Start recording
+    ideasAudioChunks=[];
+    ideasMediaRecorder=new MediaRecorder(ideasStream);
+    ideasMediaRecorder.ondataavailable=e=>{if(e.data.size>0)ideasAudioChunks.push(e.data);};
+    ideasMediaRecorder.onstop=ideasOnStop;
+    ideasMediaRecorder.start(100);
+    ideasRecSeconds=0;
+    ideasRecInterval=setInterval(()=>{ideasRecSeconds++;document.getElementById('recTime').textContent=ideasFormatTime(ideasRecSeconds);},1000);
+    ideasSetVizState('recording');
+    document.getElementById('btnRecord').disabled=false;
+    document.getElementById('btnStop').disabled=false;
+    document.getElementById('btnPause').disabled=false;
+  }catch(e){
+    alert('Microphone access denied. Please allow microphone access to record ideas.\n\n'+e.message);
+  }
+}
+
+function ideasPauseResume(){
+  if(!ideasMediaRecorder) return;
+  if(!ideasPaused){
+    ideasMediaRecorder.pause();
+    ideasPaused=true;
+    clearInterval(ideasRecInterval);
+    ideasSetVizState('paused');
+    ideasStopWave();
+    document.getElementById('btnPause').querySelector('.gbtn-icon').textContent='▶';
+    document.getElementById('btnPause').querySelector('.gbtn-label').textContent='RESUME';
+  } else {
+    ideasRecord(); // resume
+  }
+}
+
+function ideasStop(){
+  if(!ideasMediaRecorder) return;
+  clearInterval(ideasRecInterval);
+  ideasPaused=false;
+  ideasMediaRecorder.stop();
+  ideasStream.getTracks().forEach(t=>t.stop());
+  ideasStopWave();
+  if(ideasAudioCtx){ideasAudioCtx.close();ideasAudioCtx=null;}
+  document.getElementById('btnStop').disabled=true;
+  document.getElementById('btnPause').disabled=true;
+}
+
+function ideasOnStop(){
+  const blob=new Blob(ideasAudioChunks,{type:'audio/webm'});
+  const url=URL.createObjectURL(blob);
+  const title=document.getElementById('ideaTitle').value.trim()||('IDEA #'+(ideasIdeas.length+1));
+  const entry={
+    id:Date.now(),
+    title:title,
+    duration:ideasRecSeconds,
+    date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    audioUrl:url,
+    blob:blob
+  };
+  ideasIdeas.unshift(entry);
+  ideasSaveToStorage();
+  ideasRenderArchive();
+  ideasSetVizState('done');
+  document.getElementById('recTime').textContent=ideasFormatTime(ideasRecSeconds);
+  document.getElementById('ideaTitle').value='';
+  // Reset for next recording after 2s
+  setTimeout(()=>{
+    ideasSetVizState('idle');
+    document.getElementById('recTime').textContent='00:00';
+    ideasRecSeconds=0;
+    ideasMediaRecorder=null;
+  },2500);
+}
+
+function ideasRenderArchive(){
+  const list=document.getElementById('archiveList');
+  const search=document.getElementById('archiveSearch')?.value?.toLowerCase()||'';
+  const filtered=ideasIdeas.filter(i=>i.title.toLowerCase().includes(search));
+  document.getElementById('archiveCount').textContent=ideasIdeas.length+' entr'+(ideasIdeas.length===1?'y':'ies');
+  // Storage estimate
+  const bytes=ideasIdeas.reduce((a,i)=>a+(i.blob?i.blob.size:0),0);
+  document.getElementById('archiveStorage').textContent=bytes>1048576?(bytes/1048576).toFixed(1)+' MB used':(bytes/1024).toFixed(0)+' KB used';
+  if(filtered.length===0){
+    list.innerHTML=`<div class="archive-empty"><div class="ae-icon">◎</div><div class="ae-title">${search?'NO RESULTS':'NO IDEAS RECORDED YET'}</div><div class="ae-sub">${search?'Try a different search term':'Press RECORD IDEA and speak.<br>Your ideas will be archived here.'}</div></div>`;
+    return;
+  }
+  list.innerHTML='';
+  filtered.forEach(idea=>{
+    const card=document.createElement('div');
+    card.className='idea-card';card.id='idea-card-'+idea.id;
+    // Mini waveform bars (decorative)
+    const bars=Array.from({length:20},()=>`<div class="ic-wbar" style="height:${(Math.random()*14+2).toFixed(0)}px"></div>`).join('');
+    card.innerHTML=`
+      <div class="ic-top">
+        <div class="ic-title">${idea.title}</div>
+        <div class="ic-date">${idea.date}</div>
+      </div>
+      <div class="ic-duration">⏱ ${ideasFormatTime(idea.duration)}</div>
+      <div class="ic-waveform">${bars}</div>
+      <div class="ic-actions">
+        <button class="ic-btn play" onclick="ideasPlay(${idea.id})">▶ PLAY</button>
+        <button class="ic-btn" onclick="ideasDownload(${idea.id})">⬇ SAVE</button>
+        <button class="ic-btn del" onclick="ideasDelete(${idea.id})">⊗ DELETE</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function ideasPlay(id){
+  const idea=ideasIdeas.find(i=>i.id===id);
+  if(!idea||!idea.audioUrl) return;
+  // Stop any playing
+  if(ideasCurrentlyPlaying){ideasCurrentlyPlaying.pause();ideasCurrentlyPlaying=null;}
+  document.querySelectorAll('.idea-card').forEach(c=>c.classList.remove('playing'));
+  const audio=new Audio(idea.audioUrl);
+  ideasCurrentlyPlaying=audio;
+  const card=document.getElementById('idea-card-'+id);
+  if(card) card.classList.add('playing');
+  audio.play();
+  audio.onended=()=>{if(card)card.classList.remove('playing');ideasCurrentlyPlaying=null;};
+}
+
+function ideasDownload(id){
+  const idea=ideasIdeas.find(i=>i.id===id);
+  if(!idea||!idea.audioUrl) return;
+  const a=document.createElement('a');
+  a.href=idea.audioUrl;
+  a.download=(idea.title.replace(/[^a-z0-9]/gi,'_').toLowerCase()||'idea')+'_'+idea.id+'.webm';
+  a.click();
+}
+
+function ideasDelete(id){
+  if(!confirm('Delete this idea recording?')) return;
+  const idx=ideasIdeas.findIndex(i=>i.id===id);
+  if(idx>-1){
+    if(ideasIdeas[idx].audioUrl) URL.revokeObjectURL(ideasIdeas[idx].audioUrl);
+    ideasIdeas.splice(idx,1);
+    ideasSaveToStorage();ideasRenderArchive();
+  }
+}
+
+function ideasClearAll(){
+  if(!ideasIdeas.length) return;
+  if(!confirm('Delete ALL idea recordings? This cannot be undone.')) return;
+  ideasIdeas.forEach(i=>{if(i.audioUrl)URL.revokeObjectURL(i.audioUrl);});
+  ideasIdeas=[];ideasSaveToStorage();ideasRenderArchive();
+}
+
+function ideasSearch(){ideasRenderArchive();}
+
+// Init ideas on load
+ideasLoadFromStorage();
+</script>
+</body>
+</html>
